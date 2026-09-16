@@ -1,69 +1,106 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import React from "react";
+import { CategoryStrip } from "@/components/home/CategoryStrip";
+import { OccasionCards } from "@/components/home/OccasionCards";
+import { HeroCarousel } from "@/components/home/HeroCarousel";
+import { BestsellersTabs } from "@/components/home/BestsellersTabs";
+import { CelebrationCorporateBanner } from "@/components/home/CelebrationCorporateBanner";
+import { ThemedCollections } from "@/components/home/ThemedCollections";
+import { MidPromoBanner } from "@/components/home/MidPromoBanner";
+import { RecipientRow } from "@/components/home/RecipientRow";
+import { ProductShelf } from "@/components/home/ProductShelf";
+import { FeelingCards } from "@/components/home/FeelingCards";
+import { OffersStrip } from "@/components/home/OffersStrip";
+import { TrustStats } from "@/components/home/TrustStats";
+import { useStore } from "@/context/StoreContext";
+
+export default function HomePage() {
+  const { products } = useStore();
+
+  const flowerProducts = products.filter(p => p.category === "flowers");
+  const cakeProducts = products.filter(p => p.category === "cakes");
+  const newlyLaunchedProducts = products.filter(p => p.category === "personalised-gifts" || p.category === "home-decor").slice(0, 5);
+  const plantProducts = products.filter(p => p.category === "plants");
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+    <div className="w-full flex flex-col min-h-screen">
+      {/* 1. Category Icon Strip */}
+      <CategoryStrip />
+
+      {/* 2. Gifts For Every Occasion Colored Cards */}
+      <OccasionCards />
+
+      {/* 3. Hero Rotating Carousel */}
+      <HeroCarousel />
+
+      {/* 4. Shop By Bestsellers Tabbed Grid */}
+      <BestsellersTabs />
+
+      {/* 4.5. Reminders & Corporate Gifting Dual Feature Banner */}
+      <CelebrationCorporateBanner />
+
+      {/* 5. Themed Collection Strip */}
+      <ThemedCollections />
+
+      {/* 6. Mid-page Celebration / Festival Promo Banner */}
+      <MidPromoBanner />
+
+      {/* 7. Gifts for Everyone Recipient Row */}
+      <RecipientRow />
+
+      {/* 8. Curated Flower Bouquets Shelf */}
+      <ProductShelf
+        title="Curated Flower Bouquets & Keepsakes"
+        subtitle="Farm-fresh Dutch roses, radiant sunflowers & glass vase arrangements delivered same-day in Repalle"
+        badge="FRESH BLOOMS"
+        viewAllLink="/category/flowers"
+        products={flowerProducts}
+        bgClass="bg-white"
+        cardStyle="standard"
+      />
+
+      {/* 9. Handcrafted Cakes Shelf */}
+      <ProductShelf
+        title="Handcrafted Cakes & Sweet Delights"
+        subtitle="Baked fresh to order with Belgian chocolate, cream cheese & 100% pure eggless options"
+        badge="FRESHLY BAKED"
+        viewAllLink="/category/cakes"
+        products={cakeProducts}
+        bgClass="bg-white"
+        cardStyle="standard"
+      />
+
+      {/* 10. Gifts for Every Feeling Emotion Cards */}
+      <FeelingCards />
+
+      {/* 11. Newly Launched Innovations Shelf */}
+      <ProductShelf
+        title="Newly Launched Innovations"
+        subtitle="Fresh from our Repalle workshop: custom neon glow art, rotating cubes & Spotify plaques"
+        badge="STUDIO ORIGINALS"
+        viewAllLink="/category/personalised-gifts"
+        products={newlyLaunchedProducts}
+        bgClass="bg-white"
+        cardStyle="standard"
+      />
+
+      {/* 12. Offers Strip for Promo Coupons & Cashback */}
+      <OffersStrip />
+
+      {/* 13. Green Gifting / Plants & Planters */}
+      <ProductShelf
+        title="Green Gifting: Plants & Planters"
+        subtitle="Air-purifying bonsai succulents and lucky bamboo in ceramic pots that grow with your love"
+        badge="ECO GREEN"
+        viewAllLink="/category/plants"
+        products={plantProducts}
+        bgClass="bg-white"
+        cardStyle="standard"
+      />
+
+      {/* 14. Trust Stats Bar & Collapsible SEO Section */}
+      <TrustStats />
     </div>
   );
 }

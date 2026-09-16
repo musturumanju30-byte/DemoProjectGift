@@ -1,26 +1,103 @@
 @import "tailwindcss";
 
+@theme {
+  --color-brand-pink: #F72585;
+  --color-brand-pink-dark: #D6136C;
+  --color-brand-pink-light: #FEE8F2;
+  --color-brand-pink-50: #FFF0F7;
+  
+  --color-brand-navy: #1E2233;
+  --color-brand-navy-light: #2A3048;
+  --color-brand-navy-dark: #121520;
+  
+  --color-brand-black: #0A0A0A;
+  --color-brand-gold: #C9A227;
+  --color-brand-gold-light: #FFF8E6;
+  --color-brand-gold-dark: #A3801B;
+  
+  --color-brand-cream: #FAF8F5;
+  --color-brand-gray: #F4F5F7;
+  --color-brand-border: #E8EBF0;
+}
+
 :root {
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #0a0a0a;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html,
+body {
+  width: 100%;
+  min-width: 100%;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: #ffffff;
+  color: #0a0a0a;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  overflow-x: hidden;
+  padding-bottom: 3.5rem;
+}
+
+@media (min-width: 768px) {
+  body {
+    padding-bottom: 0;
+  }
+}
+
+/* Remove stray tap highlights and borders on touch devices */
+a, button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+a:focus, button:focus {
+  outline: none;
+}
+
+a:focus-visible, button:focus-visible {
+  outline: 2px solid #F72585;
+  outline-offset: 2px;
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Coupon ticket perforated effect */
+.coupon-ticket {
+  position: relative;
+  background: linear-gradient(135deg, #FFF8E6 0%, #FEF3D6 100%);
+  border: 1px dashed #C9A227;
+}
+
+.coupon-ticket::before,
+.coupon-ticket::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 16px;
+  height: 16px;
+  background-color: #ffffff;
+  border-radius: 50%;
+  transform: translateY(-50%);
+}
+
+.coupon-ticket::before {
+  left: -9px;
+  border-right: 1px dashed #C9A227;
+}
+
+.coupon-ticket::after {
+  right: -9px;
+  border-left: 1px dashed #C9A227;
 }
