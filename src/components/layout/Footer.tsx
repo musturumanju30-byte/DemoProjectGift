@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   Mail,
   ArrowRight,
@@ -27,9 +28,15 @@ import {
 import { useAuth } from "@/context/AuthContext";
 
 export const Footer: React.FC = () => {
+  const pathname = usePathname();
   const { user, openAuthModal } = useAuth();
   const [newsletterEmail, setNewsletterEmail] = useState("");
   const [isSubscribed, setIsSubscribed] = useState(false);
+
+  // Do not render storefront footer on admin routes
+  if (pathname?.startsWith("/admin")) {
+    return null;
+  }
 
   const handleNewsletter = (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,54 +48,54 @@ export const Footer: React.FC = () => {
   return (
     <footer className="w-full bg-[#F7F8F9] text-[#222222] border-t border-gray-200 font-sans">
       {/* Trust Feature Strip (Light Theme) */}
-      <div className="w-full border-b border-gray-200 bg-white py-6 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+      <div className="w-full border-b border-gray-200 bg-white py-8 px-3.5 sm:px-6 md:px-8 lg:px-12 xl:px-16">
+        <div className="w-full max-w-[1700px] mx-auto grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-8 lg:gap-12 text-center">
           <div className="flex flex-col items-center">
-            <div className="h-11 w-11 rounded-2xl bg-pink-50 border border-pink-100 flex items-center justify-center text-[#F72585] mb-2 shadow-xs">
-              <Truck className="h-5 w-5" />
+            <div className="h-12 w-12 sm:h-14 sm:w-14 rounded-2xl bg-pink-50 border border-pink-100 flex items-center justify-center text-[#F72585] mb-2 sm:mb-3 shadow-xs">
+              <Truck className="h-6 w-6 sm:h-7 sm:w-7" />
             </div>
-            <h4 className="text-xs font-bold text-gray-900 uppercase tracking-wide">Same-Day Delivery</h4>
-            <p className="text-[11px] text-gray-500 mt-0.5 max-w-[210px] leading-relaxed">
-              Within 2 hours in Repalle & same-day across Coastal AP hubs.
+            <h4 className="text-xs sm:text-base font-bold text-gray-900 uppercase tracking-wide">Same-Day Delivery</h4>
+            <p className="text-[11px] sm:text-sm text-gray-500 mt-1 max-w-[240px] leading-relaxed">
+              Within 2 hours in Repalle &amp; same-day across Coastal AP hubs.
             </p>
           </div>
 
           <div className="flex flex-col items-center">
-            <div className="h-11 w-11 rounded-2xl bg-amber-50 border border-amber-100 flex items-center justify-center text-[#C9A227] mb-2 shadow-xs">
-              <Sparkles className="h-5 w-5" />
+            <div className="h-12 w-12 sm:h-14 sm:w-14 rounded-2xl bg-amber-50 border border-amber-100 flex items-center justify-center text-[#C9A227] mb-2 sm:mb-3 shadow-xs">
+              <Sparkles className="h-6 w-6 sm:h-7 sm:w-7" />
             </div>
-            <h4 className="text-xs font-bold text-gray-900 uppercase tracking-wide">100% Personalised</h4>
-            <p className="text-[11px] text-gray-500 mt-0.5 max-w-[210px] leading-relaxed">
-              Precision laser engraving, custom acrylic & studio-baked freshness.
+            <h4 className="text-xs sm:text-base font-bold text-gray-900 uppercase tracking-wide">100% Personalised</h4>
+            <p className="text-[11px] sm:text-sm text-gray-500 mt-1 max-w-[240px] leading-relaxed">
+              Precision laser engraving, custom acrylic &amp; studio-baked freshness.
             </p>
           </div>
 
           <div className="flex flex-col items-center">
-            <div className="h-11 w-11 rounded-2xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600 mb-2 shadow-xs">
-              <ShieldCheck className="h-5 w-5" />
+            <div className="h-12 w-12 sm:h-14 sm:w-14 rounded-2xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600 mb-2 sm:mb-3 shadow-xs">
+              <ShieldCheck className="h-6 w-6 sm:h-7 sm:w-7" />
             </div>
-            <h4 className="text-xs font-bold text-gray-900 uppercase tracking-wide">Razorpay Secure</h4>
-            <p className="text-[11px] text-gray-500 mt-0.5 max-w-[210px] leading-relaxed">
-              Bank-grade 256-bit encrypted UPI, Cards & NetBanking checkout.
+            <h4 className="text-xs sm:text-base font-bold text-gray-900 uppercase tracking-wide">Razorpay Secure</h4>
+            <p className="text-[11px] sm:text-sm text-gray-500 mt-1 max-w-[240px] leading-relaxed">
+              Bank-grade 256-bit encrypted UPI, Cards &amp; NetBanking checkout.
             </p>
           </div>
 
           <div className="flex flex-col items-center">
-            <div className="h-11 w-11 rounded-2xl bg-rose-50 border border-rose-100 flex items-center justify-center text-rose-500 mb-2 shadow-xs">
-              <RotateCcw className="h-5 w-5" />
+            <div className="h-12 w-12 sm:h-14 sm:w-14 rounded-2xl bg-rose-50 border border-rose-100 flex items-center justify-center text-rose-500 mb-2 sm:mb-3 shadow-xs">
+              <RotateCcw className="h-6 w-6 sm:h-7 sm:w-7" />
             </div>
-            <h4 className="text-xs font-bold text-gray-900 uppercase tracking-wide">500+ Celebrations</h4>
-            <p className="text-[11px] text-gray-500 mt-0.5 max-w-[210px] leading-relaxed">
-              Rated 4.9★ in Repalle, Bapatla, Tenali & Guntur.
+            <h4 className="text-xs sm:text-base font-bold text-gray-900 uppercase tracking-wide">500+ Celebrations</h4>
+            <p className="text-[11px] sm:text-sm text-gray-500 mt-1 max-w-[240px] leading-relaxed">
+              Rated 4.9★ in Repalle, Bapatla, Tenali &amp; Guntur.
             </p>
           </div>
         </div>
       </div>
 
       {/* Main Multi-Column Links Section */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 lg:py-12">
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8 lg:gap-0 lg:divide-x lg:divide-gray-200">
-          
+      <div className="w-full max-w-[1700px] mx-auto px-3.5 sm:px-6 md:px-8 lg:px-12 xl:px-16 py-10 lg:py-16">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 sm:gap-8 lg:gap-10 w-full">
+
           {/* Column 1: Policy Info */}
           <div className="lg:pr-6 space-y-3">
             <h3 className="text-sm font-bold text-gray-900 tracking-tight">Policy Info</h3>
@@ -312,8 +319,8 @@ export const Footer: React.FC = () => {
       </div>
 
       {/* Middle Section: Statutory / Corporate Information */}
-      <div className="w-full border-t border-gray-200/80 bg-[#F7F8F9] py-6 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-5xl mx-auto text-center space-y-2 text-[11px] text-gray-500 leading-relaxed">
+      <div className="w-full border-t border-gray-200/80 bg-[#F7F8F9] py-6 px-3.5 sm:px-6 lg:px-8">
+        <div className="max-w-5xl mx-auto text-center space-y-2 text-[11px] text-gray-500 leading-relaxed break-words">
           <p>
             Company Name: Creative Paradise Retail Private Limited{" "}
             <span className="text-gray-300 mx-1">|</span> CIN: U52100AP2021PTC118882{" "}
@@ -337,9 +344,9 @@ export const Footer: React.FC = () => {
       </div>
 
       {/* Bottom Bar: Social Icons, Copyright & Payment Badges */}
-      <div className="w-full border-t border-gray-200 bg-white py-5 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-          
+      <div className="w-full border-t border-gray-200 bg-white py-6 px-3.5 sm:px-6 md:px-8 lg:px-12 xl:px-16">
+        <div className="w-full max-w-[1700px] mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+
           {/* Left: Circular Social Icons */}
           <div className="flex items-center gap-2.5">
             <a
@@ -395,7 +402,7 @@ export const Footer: React.FC = () => {
           </div>
 
           {/* Right: Payment Cards & Gateways */}
-          <div className="flex items-center gap-1.5 sm:gap-2">
+          <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2">
             <VisaBadge className="h-6 w-auto shadow-2xs" />
             <MastercardBadge className="h-6 w-auto shadow-2xs" />
             <RuPayBadge className="h-6 w-auto shadow-2xs" />

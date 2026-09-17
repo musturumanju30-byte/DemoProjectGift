@@ -30,35 +30,35 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
     slug === "same-day" ? "Same-Day Delivery in Repalle" : categoryInfo?.name || "Gifts";
 
   return (
-    <div className="w-full bg-gray-50/50 min-h-screen">
+    <div className="w-full bg-[#FDFCFB] min-h-screen font-sans">
       {/* Category Hero / Header Banner: Full width edge-to-edge (#1E2233 brand system) */}
-      <div className="w-full bg-[#1E2233] border-b border-gray-800 text-white py-8 sm:py-12 relative overflow-hidden">
+      <div className="w-full bg-[#1E2233] border-b border-[#2A2F45] text-white py-11 sm:py-14 lg:py-16 relative overflow-hidden">
         {/* Subtle gold grid texture */}
         <div className="absolute inset-0 bg-[radial-gradient(#C9A227_1px,transparent_1px)] [background-size:24px_24px] opacity-10 pointer-events-none" />
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          {/* Breadcrumb */}
-          <div className="flex items-center gap-1.5 text-xs text-gray-300 mb-4">
+        <div className="w-full max-w-[1700px] mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 relative z-10">
+          {/* Breadcrumbs */}
+          <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-300 mb-5">
             <Link href="/" className="hover:text-white transition">
               Home
             </Link>
-            <ChevronRight className="h-3.5 w-3.5 text-gray-500" />
+            <ChevronRight className="h-4 w-4 text-gray-400" />
             <Link href="/shop" className="hover:text-white transition">
               Shop
             </Link>
-            <ChevronRight className="h-3.5 w-3.5 text-gray-500" />
-            <span className="font-semibold text-[#C9A227]">{categoryName}</span>
+            <ChevronRight className="h-4 w-4 text-gray-400" />
+            <span className="font-bold text-[#C9A227]">{categoryName}</span>
           </div>
 
-          <div className="max-w-2xl">
-            <span className="inline-flex items-center gap-1 text-[11px] font-bold text-[#C9A227] uppercase tracking-wider mb-2">
-              <Sparkles className="h-3.5 w-3.5" />
+          <div className="max-w-3xl">
+            <span className="inline-flex items-center gap-1.5 text-xs sm:text-[13px] font-bold text-[#C9A227] uppercase tracking-wider mb-3">
+              <Sparkles className="h-4 w-4 text-[#C9A227]" />
               Coastal AP Curated Selection
             </span>
-            <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-white">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-[52px] font-serif font-bold tracking-tight text-white leading-tight">
               {categoryName}
             </h1>
-            <p className="mt-2 text-xs sm:text-sm text-gray-300">
+            <p className="mt-3 text-sm sm:text-base md:text-[17px] text-gray-200 leading-relaxed max-w-2xl font-sans">
               {slug === "same-day"
                 ? "Delivered within 2 hours in Repalle town, or scheduled for today across Coastal AP hubs."
                 : `Handcrafted ${categoryName.toLowerCase()} customized with care in our Repalle gifting workshop.`}
@@ -67,10 +67,10 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
         </div>
       </div>
 
-      {/* Main Content Area */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
-        {/* Product Grid: 2 cols mobile, 3 cols tablet (768-1279px), 4 cols desktop (1280px+) */}
-        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5 lg:gap-6">
+      {/* Main Catalog Content Area: Full width 1700px with generous spacing */}
+      <div className="w-full max-w-[1700px] mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 py-10 sm:py-14 lg:py-16">
+        {/* Product Grid: 4 columns desktop filling full width with large, readable cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 min-[1850px]:grid-cols-5 gap-6 sm:gap-7 lg:gap-8">
           {products.map(product => (
             <ProductCard key={product.id} product={product} />
           ))}

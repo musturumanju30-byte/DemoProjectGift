@@ -3,7 +3,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import {
   MapPin,
   Search,
@@ -29,6 +29,7 @@ import { SERVICEABLE_PINCODES } from "@/data/locations";
 
 export const Header: React.FC = () => {
   const router = useRouter();
+  const pathname = usePathname();
   const { products, selectedDeliveryPincode, setSelectedDeliveryPincode, wishlist } = useStore();
   const { openCart, itemCount, total } = useCart();
   const { user, logout, openAuthModal } = useAuth();
@@ -40,6 +41,11 @@ export const Header: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [remindersCount, setRemindersCount] = useState<number>(0);
   const searchRef = useRef<HTMLDivElement>(null);
+
+  // Do not render customer storefront header in admin panel
+  if (pathname?.startsWith("/admin")) {
+    return null;
+  }
 
   // Sync reminders count for logged-in user
   useEffect(() => {
@@ -105,35 +111,35 @@ export const Header: React.FC = () => {
   return (
     <>
       {/* Top Utility Announcement Bar */}
-      <div className="w-full bg-[#1E2233] text-white text-[11px] sm:text-xs py-1.5 px-4 sm:px-6 lg:px-8 font-medium">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <span className="flex items-center gap-1.5 text-amber-300">
-              <Sparkles className="h-3.5 w-3.5 text-[#C9A227]" />
-              <strong>Repalle&apos;s #1 Personalised Gifting Destination</strong>
+      <div className="w-full bg-[#1E2233] text-white py-1.5 sm:py-2 px-3 sm:px-6 md:px-8 lg:px-12 xl:px-16 min-h-[36px] sm:min-h-[40px] flex items-center">
+        <div className="w-full max-w-[1700px] mx-auto flex items-center justify-between gap-2 text-[11px] sm:text-xs md:text-[13px] font-medium min-w-0">
+          <div className="flex items-center gap-3 md:gap-5 min-w-0">
+            <span className="flex items-center gap-1.5 text-amber-300 font-semibold tracking-normal truncate">
+              <Sparkles className="h-3.5 w-3.5 text-[#C9A227] shrink-0" />
+              <span className="truncate">Repalle&apos;s #1 Personalised Gifting Destination</span>
             </span>
-            <span className="hidden md:inline-flex items-center gap-1 text-gray-300">
-              <Clock className="h-3 w-3 text-pink-400" />
-              Same-Day Delivery in 2 Hours across Coastal AP
+            <span className="hidden md:inline-flex items-center gap-1.5 text-gray-200 font-medium shrink-0">
+              <Clock className="h-3.5 w-3.5 text-pink-400 shrink-0" />
+              <span>Same-Day Delivery in 2 Hours across Coastal AP</span>
             </span>
           </div>
 
-          <div className="flex items-center gap-4 text-gray-300">
+          <div className="flex items-center gap-3 sm:gap-5 text-gray-200 font-medium shrink-0">
             <Link
               href="/track-order"
-              className="hover:text-white flex items-center gap-1 transition text-xs"
+              className="hover:text-white flex items-center gap-1 transition"
             >
-              <Truck className="h-3.5 w-3.5 text-pink-400" />
-              Track Order
+              <Truck className="h-3.5 w-3.5 text-pink-400 shrink-0" />
+              <span>Track Order</span>
             </Link>
             <a
               href="https://wa.me/c/919177003905"
               target="_blank"
               rel="noopener noreferrer"
-              className="hidden sm:flex items-center gap-1 hover:text-emerald-400 text-emerald-300 transition"
+              className="hidden sm:flex items-center gap-1.5 hover:text-emerald-400 text-emerald-300 transition"
             >
-              <Phone className="h-3 w-3" />
-              Help: +91 9177003905
+              <Phone className="h-3.5 w-3.5 shrink-0" />
+              <span>Help: +91 9177003905</span>
             </a>
           </div>
         </div>
@@ -141,57 +147,58 @@ export const Header: React.FC = () => {
 
       {/* Main Brand & Search Header */}
       <header className="w-full sticky top-0 z-40 bg-white border-b border-gray-100 shadow-xs">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-3 md:gap-6">
+        <div className="w-full max-w-[1700px] mx-auto px-2.5 sm:px-6 md:px-8 lg:px-12 xl:px-16 py-1.5 sm:py-4 min-h-[58px] sm:min-h-[72px] flex items-center justify-between gap-1.5 sm:gap-4 md:gap-6 lg:gap-8 min-w-0">
           {/* Mobile menu trigger */}
           <button
             onClick={() => setIsMobileMenuOpen(prev => !prev)}
-            className="md:hidden p-1.5 rounded-lg text-gray-700 hover:bg-gray-100"
+            className="md:hidden p-1 sm:p-1.5 rounded-xl text-gray-700 hover:bg-gray-100 min-w-[32px] sm:min-w-[36px] min-h-[32px] sm:min-h-[36px] flex items-center justify-center cursor-pointer shrink-0"
             aria-label="Toggle menu"
           >
-            <Menu className="h-6 w-6" />
+            <Menu className="h-5 w-5 sm:h-6 sm:w-6" />
           </button>
 
           {/* Logo */}
           <Link
             href="/"
-            className="flex items-center gap-2.5 shrink-0 border-0 outline-none focus:outline-none focus:ring-0 focus-visible:outline-none select-none"
+            className="flex items-center gap-1.5 sm:gap-3 shrink min-w-0 border-0 outline-none select-none group"
           >
-            <div className="h-10 w-10 sm:h-11 sm:w-11 rounded-xl bg-gradient-to-tr from-[#F72585] via-pink-600 to-[#1E2233] p-0.5 shadow-md flex items-center justify-center">
-              <div className="h-full w-full bg-white rounded-[10px] flex items-center justify-center">
-                <span className="font-extrabold text-[#F72585] text-lg tracking-tighter">CP</span>
+            <div className="h-8 w-8 sm:h-11 sm:w-11 md:h-12 md:w-12 rounded-xl sm:rounded-2xl bg-gradient-to-tr from-[#F72585] via-pink-600 to-[#1E2233] p-0.5 shadow-md flex items-center justify-center group-hover:scale-105 transition-transform duration-200 shrink-0">
+              <div className="h-full w-full bg-white rounded-[9px] sm:rounded-[14px] flex items-center justify-center">
+                <span className="font-extrabold text-[#F72585] text-sm sm:text-xl tracking-tighter">CP</span>
               </div>
             </div>
-            <div>
-              <span className="font-extrabold text-base sm:text-lg tracking-tight text-gray-900 block leading-none">
+            <div className="min-w-0 flex-1">
+              <span className="font-bold text-sm sm:text-xl md:text-[22px] tracking-tight text-gray-950 block leading-none truncate">
                 Creative Paradise
               </span>
-              <span className="text-[10px] sm:text-[11px] font-semibold tracking-wider text-[#C9A227] uppercase">
+              <span className="text-[9px] sm:text-[11px] md:text-xs font-medium tracking-wider text-[#C9A227] uppercase mt-0.5 sm:mt-1 block truncate">
                 Gifts • Repalle
               </span>
             </div>
           </Link>
 
-          {/* Location Selector (Button triggers modal) */}
+          {/* Location Selector (Button triggers modal) - shown on xl desktop */}
           <button
             onClick={() => setIsLocationModalOpen(true)}
-            className="hidden lg:flex items-center gap-2 rounded-full border border-gray-200 bg-gray-50/70 hover:bg-pink-50/50 hover:border-pink-300 px-3.5 py-1.5 transition text-left shrink-0"
+            className="hidden xl:flex items-center gap-2.5 rounded-full border border-gray-200/90 bg-gray-50/80 hover:bg-pink-50/50 hover:border-pink-300 px-4 py-2 transition text-left shrink-0 shadow-2xs cursor-pointer group"
+            aria-label="Select delivery location"
           >
-            <MapPin className="h-4 w-4 text-[#F72585] shrink-0" />
-            <div className="text-xs leading-tight">
-              <span className="block text-[10px] font-medium text-gray-500 uppercase tracking-wider">
+            <MapPin className="h-4.5 w-4.5 text-[#F72585] shrink-0 group-hover:scale-110 transition-transform" />
+            <div className="leading-tight">
+              <span className="block text-[10px] sm:text-[11px] font-medium text-gray-500 uppercase tracking-wider">
                 Deliver to
               </span>
-              <span className="font-bold text-gray-900 max-w-[140px] truncate block">
-                {currentLocation.pincode} ({currentLocation.locationName.split("&")[0]})
+              <span className="font-semibold text-[13px] sm:text-sm text-gray-900 max-w-[150px] truncate block">
+                {currentLocation.pincode} ({currentLocation.locationName.split("&")[0].trim()})
               </span>
             </div>
-            <ChevronDown className="h-3.5 w-3.5 text-gray-400 ml-1" />
+            <ChevronDown className="h-4 w-4 text-gray-400 ml-0.5 group-hover:text-gray-700 transition" />
           </button>
 
           {/* Search Bar with live popup */}
-          <div ref={searchRef} className="relative flex-1 max-w-xl hidden sm:block">
+          <div ref={searchRef} className="relative flex-1 min-w-0 max-w-xl xl:max-w-2xl hidden sm:block">
             <form onSubmit={handleSearchSubmit}>
-              <div className="relative">
+              <div className="relative flex items-center">
                 <input
                   id="header-search-desktop"
                   name="q"
@@ -203,14 +210,14 @@ export const Header: React.FC = () => {
                     setIsSearchOpen(true);
                   }}
                   onFocus={() => setIsSearchOpen(true)}
-                  className="w-full rounded-full border border-gray-200 bg-gray-50 py-2.5 pl-10 pr-10 text-xs sm:text-sm text-gray-900 placeholder:text-gray-400 focus:border-[#F72585] focus:bg-white focus:outline-none focus:ring-2 focus:ring-pink-100 transition shadow-2xs"
+                  className="w-full h-11 sm:h-12 rounded-full border border-gray-200/90 bg-gray-50/90 py-2.5 pl-11 pr-11 text-[13px] sm:text-sm text-gray-900 placeholder:text-gray-400 font-normal focus:border-[#F72585] focus:bg-white focus:outline-none focus:ring-2 focus:ring-pink-100 transition shadow-2xs"
                 />
-                <Search className="absolute left-3.5 top-3 h-4 w-4 text-gray-400" />
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
                 {searchQuery && (
                   <button
                     type="button"
                     onClick={() => setSearchQuery("")}
-                    className="absolute right-3.5 top-3 text-gray-400 hover:text-gray-600"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1"
                   >
                     <X className="h-4 w-4" />
                   </button>
@@ -236,10 +243,10 @@ export const Header: React.FC = () => {
                         <Image src={prod.images[0]} alt={prod.title} fill className="object-cover" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <h4 className="text-xs font-semibold text-gray-900 group-hover:text-[#F72585] transition truncate">
+                        <h4 className="text-xs sm:text-sm font-semibold text-gray-900 group-hover:text-[#F72585] transition truncate">
                           {prod.title}
                         </h4>
-                        <div className="flex items-center gap-2 mt-0.5 text-[11px]">
+                        <div className="flex items-center gap-2 mt-0.5 text-xs">
                           <span className="font-bold text-gray-900">₹{prod.price}</span>
                           <span className="text-gray-400 line-through">₹{prod.originalPrice}</span>
                           <span className="text-emerald-600 font-semibold">{prod.discountPercent}% off</span>
@@ -251,7 +258,7 @@ export const Header: React.FC = () => {
                 <div className="p-2 border-t border-gray-100 text-center">
                   <button
                     onClick={handleSearchSubmit}
-                    className="text-xs font-semibold text-[#F72585] hover:underline"
+                    className="text-xs sm:text-sm font-semibold text-[#F72585] hover:underline cursor-pointer"
                   >
                     View all results for &quot;{searchQuery}&quot; →
                   </button>
@@ -260,17 +267,32 @@ export const Header: React.FC = () => {
             )}
           </div>
 
-          {/* Action Icons: Corporate Gifting, Reminders, Wishlist, Account, Cart */}
-          <div className="flex items-center gap-1 sm:gap-2 md:gap-3">
-            {/* Corporate Gifting Header Icon */}
+          {/* Action Icons: Corporate Gifting, Mobile Cart, Reminders, Wishlist, Account, Desktop Cart */}
+          <div className="flex items-center gap-1 sm:gap-2 lg:gap-3 xl:gap-4 shrink-0">
+            {/* Corporate Gifting Header Icon - hidden on mobile, visible on sm+ */}
             <Link
               href="/corporate-gifting"
-              className="relative p-2 rounded-full text-gray-700 hover:text-[#F72585] hover:bg-pink-50 transition"
+              className="hidden sm:flex relative h-8 w-8 sm:h-10 sm:w-10 rounded-full items-center justify-center text-gray-700 hover:text-[#F72585] hover:bg-pink-50 transition shrink-0"
               aria-label="Corporate Gifting"
               title="Corporate & Bulk Gifting"
             >
-              <Briefcase className="h-5 w-5" />
+              <Briefcase className="h-4.5 w-4.5 sm:h-5 sm:w-5" />
             </Link>
+
+            {/* Mobile Shopping Bag / Cart Icon */}
+            <button
+              onClick={openCart}
+              className="md:hidden relative h-8 w-8 rounded-full flex items-center justify-center text-gray-700 hover:text-[#F72585] hover:bg-pink-50 transition cursor-pointer shrink-0"
+              aria-label="Shopping Bag"
+              title="Shopping Cart"
+            >
+              <ShoppingBag className="h-4.5 w-4.5" />
+              {itemCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 h-4 w-4 rounded-full bg-[#F72585] text-[10px] font-bold text-white flex items-center justify-center shadow-xs">
+                  {itemCount}
+                </span>
+              )}
+            </button>
 
             {/* My Reminders Icon - next to Wishlist */}
             <button
@@ -281,13 +303,13 @@ export const Header: React.FC = () => {
                   router.push("/reminders");
                 }
               }}
-              className="relative p-2 rounded-full text-gray-700 hover:text-[#F72585] hover:bg-pink-50 transition cursor-pointer"
+              className="relative h-8 w-8 sm:h-10 sm:w-10 rounded-full flex items-center justify-center text-gray-700 hover:text-[#F72585] hover:bg-pink-50 transition cursor-pointer shrink-0"
               aria-label="My Reminders"
               title="Never Miss a Celebration: Occasion Reminders"
             >
-              <Bell className="h-5 w-5" />
+              <Bell className="h-4.5 w-4.5 sm:h-5 sm:w-5" />
               {remindersCount > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 h-4 w-4 rounded-full bg-[#F72585] text-[10px] font-bold text-white flex items-center justify-center animate-pulse">
+                <span className="absolute top-0.5 right-0.5 h-3.5 w-3.5 rounded-full bg-[#F72585] text-[9px] font-bold text-white flex items-center justify-center animate-pulse">
                   {remindersCount}
                 </span>
               )}
@@ -296,20 +318,20 @@ export const Header: React.FC = () => {
             {/* Wishlist - hidden on mobile since it is in the primary mobile bottom nav */}
             <Link
               href="/account?tab=wishlist"
-              className="hidden md:flex relative p-2 rounded-full text-gray-700 hover:text-[#F72585] hover:bg-pink-50 transition"
+              className="hidden md:flex relative h-9 w-9 lg:h-10 lg:w-10 rounded-full items-center justify-center text-gray-700 hover:text-[#F72585] hover:bg-pink-50 transition shrink-0"
               aria-label="Wishlist"
               title="My Wishlist"
             >
               <Heart className="h-5 w-5" />
               {wishlist.length > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 h-4 w-4 rounded-full bg-[#F72585] text-[10px] font-bold text-white flex items-center justify-center">
+                <span className="absolute top-1 right-1 h-4 w-4 rounded-full bg-[#F72585] text-[10px] font-bold text-white flex items-center justify-center">
                   {wishlist.length}
                 </span>
               )}
             </Link>
 
             {/* Account / Login Menu */}
-            <div className="relative">
+            <div className="relative shrink-0">
               <button
                 onClick={() => {
                   if (!user) {
@@ -318,17 +340,23 @@ export const Header: React.FC = () => {
                     setIsUserMenuOpen(prev => !prev);
                   }
                 }}
-                className="flex items-center gap-1.5 p-2 rounded-full text-gray-700 hover:text-[#F72585] hover:bg-pink-50 transition cursor-pointer"
+                className="flex items-center gap-1 sm:gap-2 h-8 sm:h-10 px-1 sm:px-2 rounded-full text-gray-700 hover:text-[#F72585] hover:bg-pink-50 transition cursor-pointer shrink-0"
                 aria-label="User profile"
               >
                 {user?.avatarUrl ? (
-                  <div className="relative h-6 w-6 rounded-full overflow-hidden border border-[#F72585]">
+                  <div className="relative h-7 w-7 sm:h-9 sm:w-9 rounded-full overflow-hidden border-2 border-[#F72585] shrink-0">
                     <Image src={user.avatarUrl} alt={user.name} fill unoptimized className="object-cover" />
                   </div>
+                ) : user ? (
+                  <div className="h-7 w-7 sm:h-9 sm:w-9 rounded-full bg-[#F72585] text-white flex items-center justify-center font-bold text-xs shrink-0">
+                    {user.name?.charAt(0) || "U"}
+                  </div>
                 ) : (
-                  <User className="h-5 w-5" />
+                  <div className="h-7 w-7 sm:h-9 sm:w-9 rounded-full bg-gray-100 flex items-center justify-center text-gray-700 shrink-0">
+                    <User className="h-4 w-4 sm:h-5 sm:w-5" />
+                  </div>
                 )}
-                <span className="hidden xl:inline-block text-xs font-medium max-w-[80px] truncate">
+                <span className="hidden xl:inline-block text-xs sm:text-[13px] font-semibold text-gray-800 max-w-[120px] truncate">
                   {user ? user.name : "Sign In"}
                 </span>
               </button>
@@ -341,7 +369,7 @@ export const Header: React.FC = () => {
                   {user ? (
                     <>
                       <div className="px-3 py-2 border-b border-gray-100">
-                        <p className="text-xs font-bold text-gray-900 truncate">{user.name}</p>
+                        <p className="text-xs sm:text-sm font-bold text-gray-900 truncate">{user.name}</p>
                         <p className="text-[11px] text-gray-500 truncate">{user.email}</p>
                         {user.provider === "google" && (
                           <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-full mt-1">
@@ -351,46 +379,36 @@ export const Header: React.FC = () => {
                       </div>
                       <Link
                         href="/reminders"
-                        className="flex items-center justify-between px-3 py-2 text-xs font-medium text-gray-700 rounded-lg hover:bg-pink-50 hover:text-[#F72585] transition"
+                        className="flex items-center justify-between px-3 py-2 text-xs sm:text-sm font-medium text-gray-700 rounded-lg hover:bg-pink-50 hover:text-[#F72585] transition"
                       >
-                        <span className="flex items-center gap-2">
-                          <Bell className="h-3.5 w-3.5 text-[#F72585]" />
-                          My Reminders
-                        </span>
+                        <span>My Reminders</span>
                         {remindersCount > 0 && (
-                          <span className="bg-[#F72585] text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
+                          <span className="h-4 w-4 rounded-full bg-[#F72585] text-[10px] font-bold text-white flex items-center justify-center">
                             {remindersCount}
                           </span>
                         )}
                       </Link>
                       <Link
-                        href="/corporate-gifting"
-                        className="flex items-center gap-2 px-3 py-2 text-xs font-medium text-gray-700 rounded-lg hover:bg-pink-50 hover:text-[#F72585] transition"
-                      >
-                        <Briefcase className="h-3.5 w-3.5 text-[#C9A227]" />
-                        Corporate Gifting
-                      </Link>
-                      <Link
                         href="/account?tab=orders"
-                        className="flex items-center gap-2 px-3 py-2 text-xs font-medium text-gray-700 rounded-lg hover:bg-pink-50 hover:text-[#F72585] transition"
+                        className="block px-3 py-2 text-xs sm:text-sm font-medium text-gray-700 rounded-lg hover:bg-pink-50 hover:text-[#F72585] transition"
                       >
                         My Orders
                       </Link>
                       <Link
-                        href="/track-order"
-                        className="flex items-center gap-2 px-3 py-2 text-xs font-medium text-gray-700 rounded-lg hover:bg-pink-50 hover:text-[#F72585] transition"
+                        href="/account?tab=wishlist"
+                        className="block px-3 py-2 text-xs sm:text-sm font-medium text-gray-700 rounded-lg hover:bg-pink-50 hover:text-[#F72585] transition"
                       >
-                        Track Order
+                        Wishlist ({wishlist.length})
                       </Link>
                       <Link
                         href="/account?tab=addresses"
-                        className="flex items-center gap-2 px-3 py-2 text-xs font-medium text-gray-700 rounded-lg hover:bg-pink-50 hover:text-[#F72585] transition"
+                        className="block px-3 py-2 text-xs sm:text-sm font-medium text-gray-700 rounded-lg hover:bg-pink-50 hover:text-[#F72585] transition"
                       >
                         Saved Addresses
                       </Link>
                       <button
                         onClick={logout}
-                        className="w-full text-left px-3 py-2 text-xs font-medium text-red-600 rounded-lg hover:bg-red-50 transition border-t border-gray-50 mt-1 cursor-pointer"
+                        className="w-full text-left px-3 py-2 text-xs sm:text-sm font-medium text-red-600 rounded-lg hover:bg-red-50 transition cursor-pointer"
                       >
                         Sign Out
                       </button>
@@ -398,7 +416,7 @@ export const Header: React.FC = () => {
                   ) : (
                     <>
                       <div className="p-3 text-center border-b border-gray-100">
-                        <p className="text-xs font-bold text-gray-900">Welcome to Creative Paradise</p>
+                        <p className="text-xs sm:text-sm font-bold text-gray-900">Welcome to Creative Paradise</p>
                         <p className="text-[11px] text-gray-500 mt-0.5">
                           Personalised gifts & same-day delivery
                         </p>
@@ -408,7 +426,7 @@ export const Header: React.FC = () => {
                           setIsUserMenuOpen(false);
                           openAuthModal();
                         }}
-                        className="mt-2 block w-full text-center rounded-xl bg-[#F72585] py-2 text-xs font-bold text-white hover:bg-[#d6136c] transition cursor-pointer"
+                        className="mt-2 block w-full text-center rounded-xl bg-[#F72585] py-2.5 text-xs sm:text-sm font-bold text-white hover:bg-[#d6136c] transition cursor-pointer"
                       >
                         Login / Sign Up
                       </button>
@@ -433,7 +451,7 @@ export const Header: React.FC = () => {
             {/* Cart Trigger - hidden on mobile since it is in the primary mobile bottom nav */}
             <button
               onClick={openCart}
-              className="hidden md:flex items-center gap-2 rounded-full bg-gradient-to-r from-[#F72585] to-pink-600 px-3.5 py-2 text-white shadow-md hover:shadow-lg transition active:scale-95"
+              className="hidden md:flex items-center gap-2.5 rounded-full bg-gradient-to-r from-[#F72585] to-pink-600 h-10 sm:h-11 px-5 sm:px-6 text-white shadow-md hover:shadow-lg transition active:scale-95 cursor-pointer"
               aria-label="Shopping Cart"
             >
               <div className="relative">
@@ -444,7 +462,7 @@ export const Header: React.FC = () => {
                   </span>
                 )}
               </div>
-              <span className="hidden sm:inline-block text-xs font-bold">
+              <span className="hidden sm:inline-block text-[13px] sm:text-sm font-semibold tracking-wide">
                 {total > 0 ? `₹${total}` : "Cart"}
               </span>
             </button>
@@ -452,21 +470,21 @@ export const Header: React.FC = () => {
         </div>
 
         {/* Category Navigation Bar (Desktop) */}
-        <nav className="w-full border-t border-gray-100 bg-white hidden md:block">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between overflow-x-auto no-scrollbar py-2 text-xs font-semibold text-gray-700">
-            <div className="flex items-center gap-6 shrink-0">
+        <nav className="w-full border-t border-gray-100 bg-white hidden md:block overflow-hidden">
+          <div className="w-full max-w-[1700px] mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 min-h-[40px] sm:min-h-[44px] flex items-center justify-between overflow-x-auto no-scrollbar py-2.5 text-[13px] sm:text-sm font-medium text-gray-700 min-w-0">
+            <div className="flex items-center gap-4 lg:gap-6 xl:gap-7 shrink-0 min-w-0">
               <Link
                 href="/shop"
-                className="hover:text-[#F72585] transition flex items-center gap-1 text-gray-900"
+                className="hover:text-[#F72585] transition flex items-center gap-1 font-semibold text-gray-950"
               >
                 All Gifts
               </Link>
               <Link
                 href="/category/same-day"
-                className="hover:text-[#F72585] text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200/60 font-bold transition flex items-center gap-1"
+                className="hover:text-[#F72585] text-amber-800 bg-amber-50 px-3 py-1 rounded-full border border-amber-200/80 font-semibold transition flex items-center gap-1.5"
               >
-                <Sparkles className="h-3 w-3 text-amber-600" />
-                Same-Day in Repalle
+                <Sparkles className="h-3.5 w-3.5 text-amber-600" />
+                <span>Same-Day in Repalle</span>
               </Link>
               <Link href="/category/personalised-gifts" className="hover:text-[#F72585] transition">
                 Personalised Gifts
@@ -481,18 +499,19 @@ export const Header: React.FC = () => {
                 Hampers
               </Link>
               <Link href="/category/plants" className="hover:text-[#F72585] transition">
-                Plants & Pots
+                Plants &amp; Pots
               </Link>
               <Link href="/category/home-decor" className="hover:text-[#F72585] transition">
-                Resin & Neon Art
+                Resin &amp; Neon Art
               </Link>
               <Link href="/category/combos" className="hover:text-[#F72585] transition">
                 Teddy Combos
               </Link>
             </div>
-            <div className="hidden lg:flex items-center gap-4 text-[11px] text-gray-500 shrink-0">
-              <span className="flex items-center gap-1 text-[#C9A227] font-semibold">
-                ★ 4.9 Rating (500+ Reviews in Coastal AP)
+            <div className="hidden xl:flex items-center gap-4 text-xs sm:text-[13px] text-gray-600 font-medium shrink-0">
+              <span className="flex items-center gap-1.5">
+                <span className="text-[#C9A227]">★</span>
+                <span>4.9 Rating (500+ Reviews in Coastal AP)</span>
               </span>
             </div>
           </div>
@@ -788,15 +807,16 @@ export const Header: React.FC = () => {
         </div>
       )}
 
-      {/* Mobile Bottom Navigation Bar (< 768px): 56px height, min 44x44px tap targets */}
+      {/* Mobile Bottom Navigation Bar (< 768px): 100% full viewport width, 5 equal columns */}
       <nav
         aria-label="Mobile Bottom Navigation"
-        className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-gray-200/80 shadow-lg md:hidden"
+        className="fixed bottom-0 left-0 right-0 z-40 w-full bg-white/95 backdrop-blur-md border-t border-gray-200/80 shadow-lg md:hidden"
+        style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
       >
-        <div className="grid grid-cols-5 h-14 max-w-md mx-auto">
+        <div className="w-full grid grid-cols-5 h-14">
           <Link
             href="/"
-            className="flex flex-col items-center justify-center text-gray-600 hover:text-[#F72585] transition-colors"
+            className="flex flex-col items-center justify-center text-gray-600 hover:text-[#F72585] transition-colors w-full"
           >
             <Home className="h-5 w-5" />
             <span className="text-[10px] font-medium mt-0.5">Home</span>
@@ -804,7 +824,7 @@ export const Header: React.FC = () => {
 
           <Link
             href="/shop"
-            className="flex flex-col items-center justify-center text-gray-600 hover:text-[#F72585] transition-colors"
+            className="flex flex-col items-center justify-center text-gray-600 hover:text-[#F72585] transition-colors w-full"
           >
             <Sparkles className="h-5 w-5" />
             <span className="text-[10px] font-medium mt-0.5">Explore</span>
@@ -812,7 +832,7 @@ export const Header: React.FC = () => {
 
           <Link
             href="/account?tab=wishlist"
-            className="relative flex flex-col items-center justify-center text-gray-600 hover:text-[#F72585] transition-colors"
+            className="relative flex flex-col items-center justify-center text-gray-600 hover:text-[#F72585] transition-colors w-full"
           >
             <div className="relative">
               <Heart className="h-5 w-5" />
@@ -827,7 +847,7 @@ export const Header: React.FC = () => {
 
           <Link
             href="/track-order"
-            className="flex flex-col items-center justify-center text-gray-600 hover:text-[#F72585] transition-colors"
+            className="flex flex-col items-center justify-center text-gray-600 hover:text-[#F72585] transition-colors w-full"
           >
             <Truck className="h-5 w-5" />
             <span className="text-[10px] font-medium mt-0.5">Track</span>
@@ -836,7 +856,7 @@ export const Header: React.FC = () => {
           <button
             type="button"
             onClick={openCart}
-            className="relative flex flex-col items-center justify-center text-[#F72585] transition-colors"
+            className="relative flex flex-col items-center justify-center text-[#F72585] transition-colors w-full cursor-pointer"
             aria-label="Open Cart"
           >
             <div className="relative">

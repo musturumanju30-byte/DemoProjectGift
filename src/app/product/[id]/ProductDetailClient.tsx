@@ -839,28 +839,88 @@ export const ProductDetailClient: React.FC<ProductDetailClientProps> = ({
         {/* BELOW THE FOLD SECTION */}
         {/* ========================================================================= */}
 
-        {/* 1. "Recently Viewed" Row: Minimal card style, image, name, price only */}
-        {recentlyViewed.length > 0 && (
-          <section className="mt-20 pt-10 border-t border-gray-100">
-            <div className="flex items-center justify-between mb-6">
+        {/* 1. "You May Also Like" Row */}
+        {relatedProducts && relatedProducts.length > 0 && (
+          <section className="mt-14 sm:mt-20 pt-8 sm:pt-10 border-t border-gray-100">
+            <div className="flex items-center justify-between mb-4 sm:mb-6">
               <div>
-                <h2 className="text-xl sm:text-2xl font-extrabold text-[#0A0A0A] tracking-tight">
+                <span className="text-[10px] sm:text-xs font-bold text-[#C9A227] uppercase tracking-[0.8px] block mb-0.5">
+                  RECOMMENDED FOR YOU
+                </span>
+                <h2 className="text-xl sm:text-2xl font-serif font-bold text-[#0A0A0A] tracking-tight">
+                  You May Also Like
+                </h2>
+                <div className="h-0.5 w-12 bg-[#C9A227] mt-1.5 rounded-full" />
+              </div>
+              <Link
+                href={`/category/${product.category}`}
+                className="hidden sm:flex text-xs sm:text-sm font-bold text-[#F72585] hover:underline items-center gap-1"
+              >
+                View More <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
+            </div>
+
+            {/* Horizontal carousel on mobile, 4-col on desktop */}
+            <div
+              className="flex md:grid overflow-x-auto md:overflow-visible no-scrollbar gap-2.5 sm:gap-4 md:gap-6 w-full pl-2.5 pr-3 -mx-2.5 sm:mx-0 md:px-0 md:grid-cols-4 scroll-smooth"
+              style={{ WebkitOverflowScrolling: "touch" }}
+            >
+              {relatedProducts.slice(0, 8).map(p => (
+                <div key={p.id} className="w-[135px] sm:w-[140px] md:w-full shrink-0 md:shrink" style={{ flex: "0 0 135px" }}>
+                  <ProductCard product={p} />
+                </div>
+              ))}
+            </div>
+
+            {/* Section-Level Explore Button on Mobile */}
+            <div className="mt-3.5 md:hidden">
+              <Link
+                href={`/category/${product.category}`}
+                className="w-full h-[40px] flex items-center justify-center rounded-[7px] border border-[#ddd] bg-white text-[12.5px] font-semibold text-gray-800 shadow-2xs hover:bg-gray-50 active:scale-[0.99] transition-all"
+              >
+                <span>Explore Similar Gifts &gt;</span>
+              </Link>
+            </div>
+          </section>
+        )}
+
+        {/* 2. "Recently Viewed" Row: Minimal card style, horizontal carousel on mobile */}
+        {recentlyViewed.length > 0 && (
+          <section className="mt-14 sm:mt-20 pt-8 sm:pt-10 border-t border-gray-100">
+            <div className="flex items-center justify-between mb-4 sm:mb-6">
+              <div>
+                <h2 className="text-xl sm:text-2xl font-serif font-bold text-[#0A0A0A] tracking-tight">
                   Recently Viewed
                 </h2>
                 <div className="h-0.5 w-12 bg-[#C9A227] mt-1.5 rounded-full" />
               </div>
               <Link
                 href="/shop"
-                className="text-xs font-bold text-[#F72585] hover:underline flex items-center gap-1"
+                className="hidden sm:flex text-xs sm:text-sm font-bold text-[#F72585] hover:underline items-center gap-1"
               >
                 View More <ArrowRight className="h-3.5 w-3.5" />
               </Link>
             </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5 lg:gap-6">
-              {recentlyViewed.slice(0, 4).map(p => (
-                <ProductCard key={p.id} product={p} />
+            <div
+              className="flex md:grid overflow-x-auto md:overflow-visible no-scrollbar gap-2.5 sm:gap-4 md:gap-6 w-full pl-2.5 pr-3 -mx-2.5 sm:mx-0 md:px-0 md:grid-cols-4 scroll-smooth"
+              style={{ WebkitOverflowScrolling: "touch" }}
+            >
+              {recentlyViewed.slice(0, 8).map(p => (
+                <div key={p.id} className="w-[135px] sm:w-[140px] md:w-full shrink-0 md:shrink" style={{ flex: "0 0 135px" }}>
+                  <ProductCard product={p} />
+                </div>
               ))}
+            </div>
+
+            {/* Section-Level Explore Button on Mobile */}
+            <div className="mt-3.5 md:hidden">
+              <Link
+                href="/shop"
+                className="w-full h-[40px] flex items-center justify-center rounded-[7px] border border-[#ddd] bg-white text-[12.5px] font-semibold text-gray-800 shadow-2xs hover:bg-gray-50 active:scale-[0.99] transition-all"
+              >
+                <span>Explore More Gifts &gt;</span>
+              </Link>
             </div>
           </section>
         )}

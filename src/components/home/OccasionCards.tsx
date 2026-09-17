@@ -50,55 +50,71 @@ const OCCASION_CARDS_DATA = [
 
 export const OccasionCards: React.FC = () => {
   return (
-    <section className="w-full bg-white py-16 sm:py-20 border-b border-gray-100">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section className="w-full bg-white pt-6 pb-12 sm:py-16 md:py-20 border-b border-gray-100 font-sans">
+      <div className="w-full max-w-[1700px] mx-auto px-3.5 sm:px-6 md:px-8 lg:px-12 xl:px-16">
         {/* Section Header */}
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 sm:mb-10 gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-5 sm:mb-12 gap-3 sm:gap-4">
           <div>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-[#0A0A0A] tracking-tight">
+            <span className="text-[11px] sm:text-xs md:text-[13px] font-bold text-[#C9A227] uppercase tracking-[1px] block mb-1">
+              CURATED OCCASIONS
+            </span>
+            <h2 className="text-[26px] sm:text-3xl md:text-4xl font-serif font-bold text-gray-950 tracking-tight leading-tight">
               Gifts For Every Occasion
             </h2>
-            <div className="h-0.5 w-12 bg-[#C9A227] mt-2 rounded-full" />
-            <p className="text-xs sm:text-sm text-gray-500 mt-1.5">
-              Curated celebrations handcrafted for birthdays, anniversaries & festivals in Coastal AP
+            <div className="h-0.5 w-12 bg-[#C9A227] mt-1.5 sm:mt-2.5 rounded-full" />
+            <p className="text-[13px] sm:text-sm md:text-base text-gray-500 mt-2 leading-[1.55]">
+              Curated celebrations handcrafted for birthdays, anniversaries &amp; festivals in Coastal AP
             </p>
+            {/* Mobile Explore All Occasions (directly beneath description) */}
+            <Link
+              href="/shop"
+              className="text-[13px] sm:text-sm md:text-base font-bold text-[#F72585] hover:underline inline-flex items-center gap-1.5 mt-2.5 sm:hidden group"
+            >
+              <span>Explore All Occasions</span>
+              <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-1 transition-transform" />
+            </Link>
           </div>
+
+          {/* Desktop Explore All Occasions (aligned right) */}
           <Link
             href="/shop"
-            className="text-xs font-bold text-[#F72585] hover:underline flex items-center gap-1 shrink-0"
+            className="hidden sm:flex text-sm md:text-base font-bold text-[#F72585] hover:underline items-center gap-1.5 shrink-0 group"
           >
-            Explore All Occasions <ArrowRight className="h-3.5 w-3.5" />
+            <span>Explore All Occasions</span>
+            <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
           </Link>
         </div>
 
-        {/* 5 Pastel Rounded Occasion Cards with consistent 24px (gap-6) spacing */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-6">
-          {OCCASION_CARDS_DATA.map(occ => (
+        {/* 2-column responsive mobile grid (gap: 12-14px), 5-col on desktop */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-6 lg:gap-7 w-full">
+          {OCCASION_CARDS_DATA.map((occ, idx) => (
             <Link
               key={occ.slug}
               href={`/shop?occasion=${occ.slug}`}
-              className={`group relative flex flex-col justify-between overflow-hidden rounded-2xl border ${occ.borderColor} ${occ.bgColor} p-4 sm:p-5 h-40 sm:h-48 shadow-2xs hover:shadow-md hover:-translate-y-1 transition-all duration-300`}
+              className={`group relative flex flex-col justify-between overflow-hidden rounded-2xl sm:rounded-3xl border ${occ.borderColor} ${occ.bgColor} p-3.5 sm:p-5 md:p-6 shadow-xs hover:shadow-xl hover:-translate-y-1 transition-all duration-300 w-full min-w-0 cursor-pointer ${
+                idx === 4 ? "hidden sm:flex" : "flex"
+              }`}
             >
-              {/* Text info on top left */}
-              <div className="relative z-10 max-w-[62%]">
-                <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block">
+              {/* Text info on top */}
+              <div className="relative z-10 w-full min-w-0">
+                <span className="text-[10px] sm:text-xs font-bold text-gray-500 uppercase tracking-[0.8px] block">
                   CELEBRATE
                 </span>
-                <h3 className="text-sm sm:text-base font-extrabold text-gray-900 group-hover:text-[#F72585] transition-colors leading-tight mt-0.5">
+                <h3 className="text-[16px] sm:text-base md:text-lg font-bold text-gray-900 group-hover:text-[#F72585] transition-colors leading-tight mt-1 truncate">
                   {occ.title}
                 </h3>
-                <p className="text-[11px] text-gray-600 mt-1 line-clamp-1 leading-tight font-medium">
+                <p className="text-[11px] sm:text-xs md:text-[13px] text-gray-600 mt-1 line-clamp-1 leading-snug font-medium">
                   {occ.subtitle}
                 </p>
               </div>
 
-              {/* Product preview photo positioned in bottom-right matching reference layout */}
-              <div className="absolute right-[-4px] bottom-[-4px] h-26 w-26 sm:h-30 sm:w-30 rounded-2xl overflow-hidden shadow-xs group-hover:scale-106 transition-transform duration-500">
+              {/* Product preview photo filling the lower portion of the card cleanly without overflow */}
+              <div className="relative mt-3 w-full h-28 sm:h-32 md:h-36 rounded-xl sm:rounded-2xl overflow-hidden shadow-2xs">
                 <Image
                   src={occ.image}
                   alt={occ.title}
                   fill
-                  className="object-cover"
+                  className="object-cover group-hover:scale-105 transition-transform duration-300"
                 />
               </div>
             </Link>

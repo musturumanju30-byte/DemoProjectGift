@@ -15,12 +15,16 @@ import {
   Truck,
   Sparkles,
   CheckCircle2,
+  Heart,
 } from "lucide-react";
 import { useCart } from "@/context/CartContext";
+import { useStore } from "@/context/StoreContext";
 import { AVAILABLE_COUPONS } from "@/data/locations";
+import { ProductCard } from "@/components/product/ProductCard";
 
 export default function CartPage() {
   const router = useRouter();
+  const { wishlist, toggleWishlist, products } = useStore();
   const {
     items,
     updateQuantity,
@@ -186,40 +190,62 @@ export default function CartPage() {
                     )}
                   </div>
 
-                  {/* Pricing and Stepper */}
-                  <div className="mt-4 flex items-center justify-between pt-2 border-t border-gray-100">
+                  {/* Pricing, Stepper, and Wishlist */}
+                  <div className="mt-4 flex items-center justify-between pt-2 border-t border-gray-100 flex-wrap gap-2">
                     <div className="flex items-center gap-2">
-                      <span className="text-base sm:text-lg font-black text-gray-900">
+                      <span className="text-base sm:text-lg font-bold text-gray-900">
                         ₹{item.unitPrice * item.quantity}
                       </span>
                       {item.product.originalPrice > item.unitPrice && (
-                        <span className="text-xs text-gray-400 line-through">
-                          ₹{item.product.originalPrice * item.quantity}
-                        </span>
+                        <>
+                          <span className="text-xs text-gray-400 line-through">
+                            ₹{item.product.originalPrice * item.quantity}
+                          </span>
+                          <span className="text-xs font-semibold text-emerald-600">
+                            {item.product.discountPercent}% OFF
+                          </span>
+                        </>
                       )}
-                      <span className="text-xs text-gray-400">
-                        (₹{item.unitPrice} each)
-                      </span>
                     </div>
 
-                    <div className="flex items-center rounded-xl border border-gray-200 bg-gray-50 px-2 py-1">
+                    <div className="flex items-center gap-2">
                       <button
-                        onClick={() => updateQuantity(item.cartItemId, item.quantity - 1)}
-                        className="p-1 text-gray-500 hover:text-black transition"
-                        aria-label="Decrease quantity"
+                        type="button"
+                        onClick={() => toggleWishlist(item.product.id)}
+                        className={`h-9 w-9 min-h-[36px] min-w-[36px] rounded-xl flex items-center justify-center transition cursor-pointer ${
+                          wishlist.includes(item.product.id)
+                            ? "bg-pink-50 text-[#F72585]"
+                            : "text-gray-400 hover:text-[#F72585] hover:bg-pink-50/50"
+                        }`}
+                        aria-label={wishlist.includes(item.product.id) ? "Remove from wishlist" : "Save for later"}
+                        title={wishlist.includes(item.product.id) ? "Saved in wishlist" : "Save for later"}
                       >
-                        <Minus className="h-3.5 w-3.5" />
+                        <Heart
+                          className={`h-5 w-5 ${wishlist.includes(item.product.id) ? "fill-[#F72585]" : ""}`}
+                        />
                       </button>
-                      <span className="w-8 text-center text-xs font-bold text-gray-900">
-                        {item.quantity}
-                      </span>
-                      <button
-                        onClick={() => updateQuantity(item.cartItemId, item.quantity + 1)}
-                        className="p-1 text-gray-500 hover:text-black transition"
-                        aria-label="Increase quantity"
-                      >
-                        <Plus className="h-3.5 w-3.5" />
-                      </button>
+
+                      <div className="flex items-center h-9 w-[104px] sm:w-[110px] rounded-xl border border-gray-200 bg-gray-50/80 p-0.5">
+                        <button
+                          type="button"
+                          onClick={() => updateQuantity(item.cartItemId, item.quantity - 1)}
+                          className="w-8 h-full min-h-[32px] rounded-lg flex items-center justify-center text-gray-600 hover:text-black hover:bg-gray-200/80 transition cursor-pointer active:scale-90"
+                          aria-label="Decrease quantity"
+                        >
+                          <Minus className="h-3.5 w-3.5" />
+                        </button>
+                        <span className="flex-1 text-center text-xs sm:text-sm font-bold text-gray-900 select-none">
+                          {item.quantity}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => updateQuantity(item.cartItemId, item.quantity + 1)}
+                          className="w-8 h-full min-h-[32px] rounded-lg flex items-center justify-center text-gray-600 hover:text-black hover:bg-gray-200/80 transition cursor-pointer active:scale-90"
+                          aria-label="Increase quantity"
+                        >
+                          <Plus className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -347,6 +373,53 @@ export default function CartPage() {
             </div>
           </div>
         </div>
+
+        {/* Recommended Products Carousel ("You May Also Like") */}
+        {products && products.length > 0 && (
+          <section className="mt-12 sm:mt-16 pt-8 sm:pt-10 border-t border-gray-200/80 font-sans">
+            <div className="flex items-center justify-between mb-4 sm:mb-6">
+              <div>
+                <span className="text-[10px] sm:text-xs font-bold text-[#C9A227] uppercase tracking-[0.8px] block mb-0.5">
+                  HANDPICKED FOR YOU
+                </span>
+                <h2 className="text-xl sm:text-2xl font-serif font-bold text-[#0A0A0A] tracking-tight">
+                  You May Also Like
+                </h2>
+                <div className="h-0.5 w-12 bg-[#C9A227] mt-1.5 rounded-full" />
+              </div>
+              <Link
+                href="/shop"
+                className="hidden sm:flex text-xs sm:text-sm font-bold text-[#F72585] hover:underline items-center gap-1"
+              >
+                View More <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
+            </div>
+
+            <div
+              className="flex md:grid overflow-x-auto md:overflow-visible no-scrollbar gap-2.5 sm:gap-4 md:gap-6 w-full pl-2.5 pr-3 -mx-2.5 sm:mx-0 md:px-0 md:grid-cols-4 scroll-smooth"
+              style={{ WebkitOverflowScrolling: "touch" }}
+            >
+              {products
+                .filter(p => !items.some(item => item.product.id === p.id))
+                .slice(0, 8)
+                .map(prod => (
+                  <div key={prod.id} className="w-[135px] sm:w-[140px] md:w-full shrink-0 md:shrink" style={{ flex: "0 0 135px" }}>
+                    <ProductCard product={prod} />
+                  </div>
+                ))}
+            </div>
+
+            {/* Mobile Section-Level Explore Button */}
+            <div className="mt-3.5 md:hidden">
+              <Link
+                href="/shop"
+                className="w-full h-[40px] flex items-center justify-center rounded-[7px] border border-[#ddd] bg-white text-[12.5px] font-semibold text-gray-800 shadow-2xs hover:bg-gray-50 active:scale-[0.99] transition-all"
+              >
+                <span>Explore More Gifts &gt;</span>
+              </Link>
+            </div>
+          </section>
+        )}
       </div>
     </div>
   );

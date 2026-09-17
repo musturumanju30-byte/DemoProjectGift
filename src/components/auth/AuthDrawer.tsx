@@ -8,15 +8,30 @@ import { useAuth } from "@/context/AuthContext";
 import { GoogleIcon } from "@/components/common/Icons";
 
 export const AuthDrawer: React.FC = () => {
-  const { isAuthModalOpen, closeAuthModal, loginWithGoogle, verifyOtp } = useAuth();
+  const {
+    user,
+    isAuthModalOpen,
+    closeAuthModal,
+    loginWithGoogle,
+    sendEmailOtp,
+    verifyOtp,
+    isDemoMode,
+  } = useAuth();
 
   const [step, setStep] = useState<"input" | "otp">("input");
   const [email, setEmail] = useState("");
-  const [otp, setOtp] = useState(["", "", "", ""]);
+  const [otp, setOtp] = useState<string[]>(["", "", "", "", "", ""]);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
-  const [resendTimer, setResendTimer] = useState(30);
+  const [resendTimer, setResendTimer] = useState(60);
+
+  // Auto-close drawer as soon as user is authenticated (e.g. clicked email link or verified code)
+  useEffect(() => {
+    if (user && isAuthModalOpen) {
+      closeAuthModal();
+    }
+  }, [user, isAuthModalOpen, closeAuthModal]);
 
   // Reset state when modal opens/closes
   useEffect(() => {
@@ -25,8 +40,8 @@ export const AuthDrawer: React.FC = () => {
       setError("");
       setIsLoading(false);
       setIsGoogleLoading(false);
-      setOtp(["", "", "", ""]);
-      setResendTimer(30);
+      setOtp(["", "", "", "", "", ""]);
+      setResendTimer(60);
     }
   }, [isAuthModalOpen]);
 
@@ -42,7 +57,7 @@ export const AuthDrawer: React.FC = () => {
 
   if (!isAuthModalOpen) return null;
 
-  const handleContinue = (e: React.FormEvent) => {
+  const handleContinue = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
@@ -58,23 +73,45 @@ export const AuthDrawer: React.FC = () => {
     }
 
     setIsLoading(true);
-    setTimeout(() => {
-      setIsLoading(false);
-      setStep("otp");
-      setResendTimer(30);
-    }, 400);
+    const res = await sendEmailOtp(email.trim());
+    setIsLoading(false);
+
+    if (!res.success) {
+      setError(res.error || "Failed to send verification code. Please check your email and try again.");
+      return;
+    }
+
+    setStep("otp");
+    setResendTimer(60);
+    setOtp(["", "", "", "", "", ""]);
   };
 
   const handleOtpChange = (index: number, value: string) => {
+    // Handle paste of 6 digits
     if (value.length > 1) {
-      value = value[value.length - 1];
+      const cleanDigits = value.replace(/\D/g, "").slice(0, 6);
+      if (cleanDigits.length > 0) {
+        const digits = cleanDigits.split("");
+        const newOtp = ["", "", "", "", "", ""];
+        digits.forEach((d, i) => {
+          newOtp[i] = d;
+        });
+        setOtp(newOtp);
+        const nextIdx = Math.min(digits.length, 5);
+        setTimeout(() => {
+          document.getElementById(`otp-input-${nextIdx}`)?.focus();
+        }, 10);
+        return;
+      }
     }
+
+    const cleanChar = value.slice(-1).replace(/\D/g, "");
     const newOtp = [...otp];
-    newOtp[index] = value;
+    newOtp[index] = cleanChar;
     setOtp(newOtp);
 
     // Auto-focus next input
-    if (value && index < 3) {
+    if (cleanChar && index < 5) {
       const nextInput = document.getElementById(`otp-input-${index + 1}`);
       nextInput?.focus();
     }
@@ -89,18 +126,33 @@ export const AuthDrawer: React.FC = () => {
 
   const handleVerifyOtp = async (e: React.FormEvent) => {
     e.preventDefault();
-    const otpCode = otp.join("");
-    if (otpCode.length < 4) {
-      setError("Please enter the 4-digit verification code");
+    const otpCode = otp.join("").trim();
+    if (otpCode.length < 6) {
+      setError("Please enter the complete 6-digit verification code");
       return;
     }
 
     setIsLoading(true);
-    const success = await verifyOtp(email, otpCode);
+    setError("");
+    const res = await verifyOtp(email.trim(), otpCode);
     setIsLoading(false);
 
-    if (!success) {
-      setError("Invalid OTP code. Use test code 1234");
+    if (!res.success) {
+      setError(res.error || "Invalid or expired verification code. Please check and try again.");
+    }
+  };
+
+  const handleResend = async () => {
+    setError("");
+    setIsLoading(true);
+    const res = await sendEmailOtp(email.trim());
+    setIsLoading(false);
+
+    if (res.success) {
+      setResendTimer(60);
+      setOtp(["", "", "", "", "", ""]);
+    } else {
+      setError(res.error || "Failed to resend code. Please try again shortly.");
     }
   };
 
@@ -148,7 +200,6 @@ export const AuthDrawer: React.FC = () => {
 
         {/* Drawer Panel (full-width on mobile, max-w-md on desktop) */}
         <div className="relative w-screen max-w-md bg-white shadow-2xl flex flex-col justify-between overflow-y-auto animate-in slide-in-from-right duration-300">
-          
           {/* Mobile close button inside drawer */}
           <div className="flex sm:hidden justify-between items-center px-5 pt-4">
             <button
@@ -165,16 +216,15 @@ export const AuthDrawer: React.FC = () => {
 
           {/* Upper Section: Form & Auth */}
           <div className="p-6 sm:p-8 flex-1 flex flex-col justify-center">
-            
             {/* Step 1: Input Email & Real Google Login */}
             {step === "input" && (
               <>
                 <div className="text-center">
                   <h2 className="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight">
-                    Sign Up/Login to Creative Paradise!
+                    Sign Up / Login to Creative Paradise
                   </h2>
                   <p className="text-xs text-gray-500 mt-1.5 font-normal">
-                    For a personalized experience &amp; faster checkout
+                    We will send a secure one-time verification code to your email
                   </p>
                 </div>
 
@@ -232,7 +282,7 @@ export const AuthDrawer: React.FC = () => {
                     {isLoading ? (
                       <span className="inline-block h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                     ) : (
-                      "Continue"
+                      "Send Secure Code"
                     )}
                   </button>
                 </form>
@@ -304,17 +354,20 @@ export const AuthDrawer: React.FC = () => {
               </>
             )}
 
-            {/* Step 2: OTP Verification Code */}
+            {/* Step 2: Real 6-digit OTP Verification Code */}
             {step === "otp" && (
               <div className="animate-in fade-in">
                 <div className="text-center">
                   <div className="h-11 w-11 rounded-2xl bg-pink-50 border border-pink-100 flex items-center justify-center text-[#F72585] mx-auto mb-3">
                     <Lock className="h-5 w-5" />
                   </div>
-                  <h2 className="text-xl font-bold text-gray-900">Enter Verification Code</h2>
+                  <h2 className="text-xl font-bold text-gray-900">Check Your Email</h2>
                   <p className="text-xs text-gray-500 mt-1">
-                    We sent a 4-digit code to <strong className="text-gray-800">{email}</strong>
+                    We sent a sign-in email to <strong className="text-gray-800">{email}</strong>
                   </p>
+                  <div className="my-2.5 px-3 py-2 rounded-xl bg-pink-50/80 border border-pink-100 text-[11px] text-gray-700 leading-snug">
+                    💡 <strong>Quick Login:</strong> Click <strong>&quot;Confirm email address&quot;</strong> in your email to log in instantly, or enter your code below.
+                  </div>
                   <button
                     type="button"
                     onClick={() => setStep("input")}
@@ -325,7 +378,7 @@ export const AuthDrawer: React.FC = () => {
                 </div>
 
                 <form onSubmit={handleVerifyOtp} className="mt-6 space-y-4">
-                  <div className="flex justify-center gap-3">
+                  <div className="flex justify-center gap-2 sm:gap-2.5">
                     {otp.map((digit, idx) => (
                       <input
                         key={idx}
@@ -336,26 +389,26 @@ export const AuthDrawer: React.FC = () => {
                         value={digit}
                         onChange={e => handleOtpChange(idx, e.target.value)}
                         onKeyDown={e => handleOtpKeyDown(idx, e)}
-                        className="h-12 w-12 rounded-xl border border-gray-300 text-center text-lg font-bold text-gray-900 focus:border-[#6B722C] focus:ring-2 focus:ring-[#6B722C]/20 focus:outline-none transition shadow-2xs"
+                        className="h-12 w-10 sm:h-13 sm:w-12 rounded-xl border border-gray-300 text-center text-lg sm:text-xl font-bold text-gray-900 focus:border-[#6B722C] focus:ring-2 focus:ring-[#6B722C]/20 focus:outline-none transition shadow-2xs"
                         autoFocus={idx === 0}
                       />
                     ))}
                   </div>
 
                   {error && (
-                    <p className="text-xs text-center text-red-600 font-medium">{error}</p>
+                    <div className="p-2.5 rounded-xl bg-red-50 border border-red-200 text-xs text-center text-red-600 font-medium">
+                      {error}
+                    </div>
                   )}
 
-                  {/* Autofill Demo Helper */}
-                  <div className="text-center">
-                    <button
-                      type="button"
-                      onClick={() => setOtp(["1", "2", "3", "4"])}
-                      className="text-[11px] text-gray-500 hover:text-[#6B722C] underline cursor-pointer"
-                    >
-                      (Click to auto-fill test code: 1234)
-                    </button>
-                  </div>
+                  {/* Strictly Dev / Demo Mode Notice */}
+                  {isDemoMode && (
+                    <div className="text-center">
+                      <span className="inline-block px-2.5 py-1 rounded-md bg-amber-50 border border-amber-200 text-[10px] text-amber-700 font-mono">
+                        DEMO MODE ACTIVE: Check your real Supabase email logs or inbox
+                      </span>
+                    </div>
+                  )}
 
                   <button
                     type="submit"
@@ -371,15 +424,15 @@ export const AuthDrawer: React.FC = () => {
 
                   <div className="text-center text-xs text-gray-500 pt-2">
                     {resendTimer > 0 ? (
-                      <span>Resend code in <strong className="text-gray-800">{resendTimer}s</strong></span>
+                      <span>
+                        Resend code in <strong className="text-gray-800">{resendTimer}s</strong>
+                      </span>
                     ) : (
                       <button
                         type="button"
-                        onClick={() => {
-                          setResendTimer(30);
-                          setOtp(["", "", "", ""]);
-                        }}
-                        className="text-[#6B722C] font-bold hover:underline cursor-pointer"
+                        onClick={handleResend}
+                        disabled={isLoading}
+                        className="text-[#6B722C] font-bold hover:underline cursor-pointer disabled:opacity-50"
                       >
                         Resend Code
                       </button>
@@ -397,6 +450,7 @@ export const AuthDrawer: React.FC = () => {
               src="/images/login_banner.jpg"
               alt="Send Gifts Anywhere, Everywhere"
               fill
+              sizes="(max-width: 640px) 100vw, 448px"
               className="object-cover object-top"
               priority
             />
@@ -404,7 +458,7 @@ export const AuthDrawer: React.FC = () => {
             {/* Gradient Overlay for Typography Readability */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-white/80" />
 
-            {/* Typography Overlay matching the Screenshot */}
+            {/* Typography Overlay matching the Design */}
             <div className="absolute top-4 left-5 right-5">
               <h3 className="text-2xl sm:text-3xl font-black italic tracking-tight text-[#E63946] drop-shadow-xs">
                 Send Gifts
@@ -419,7 +473,6 @@ export const AuthDrawer: React.FC = () => {
               *T&amp;C Apply
             </div>
           </div>
-
         </div>
       </div>
     </div>

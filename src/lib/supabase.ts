@@ -13,9 +13,9 @@ const supabaseAnonKey =
 
 export const isSupabaseConfigured = Boolean(
   supabaseUrl &&
-    supabaseAnonKey &&
-    !supabaseUrl.includes("dummy") &&
-    !supabaseAnonKey.includes("dummy")
+  supabaseAnonKey &&
+  !supabaseUrl.includes("dummy") &&
+  !supabaseAnonKey.includes("dummy")
 );
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
@@ -25,3 +25,15 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     detectSessionInUrl: true,
   },
 });
+
+// Privileged server-side client (only accessible on server where SUPABASE_SECRET_KEY exists)
+const secretKey = process.env.SUPABASE_SECRET_KEY;
+export const supabaseAdmin = secretKey
+  ? createClient(supabaseUrl, secretKey, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
+    },
+  })
+  : supabase;
+

@@ -135,7 +135,7 @@ export default function AdminDashboardPage() {
       </div>
 
       {/* 2. Top KPI Cards matching Image 2 (4 Columns) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
         {/* Card 1: Total Revenue */}
         <div className="rounded-2xl bg-white border border-gray-200/80 p-5 shadow-2xs space-y-2">
           <div className="flex items-center justify-between">
@@ -234,9 +234,9 @@ export default function AdminDashboardPage() {
       </div>
 
       {/* 3. Middle Section: Recent Activity & Orders + Weekly Revenue */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+      <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 items-stretch">
         {/* Left Card: Recent Activity & Orders matching Image 2 */}
-        <div className="lg:col-span-7 rounded-2xl bg-white border border-gray-200/80 p-6 shadow-2xs flex flex-col justify-between">
+        <div className="xl:col-span-7 rounded-2xl bg-white border border-gray-200/80 p-6 shadow-2xs flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-sm font-bold text-gray-900">
@@ -270,7 +270,7 @@ export default function AdminDashboardPage() {
                       <td className="py-3.5 px-3 font-medium text-gray-700">
                         {order.customer}
                       </td>
-                      <td className="py-3.5 px-3 text-gray-500 truncate max-w-[170px]">
+                      <td className="py-3.5 px-3 text-gray-500">
                         {order.items}
                       </td>
                       <td className="py-3.5 px-3 font-bold text-gray-900">
@@ -292,7 +292,7 @@ export default function AdminDashboardPage() {
         </div>
 
         {/* Right Card: Weekly Revenue Bar Chart matching Image 2 */}
-        <div className="lg:col-span-5 rounded-2xl bg-white border border-gray-200/80 p-6 shadow-2xs flex flex-col justify-between">
+        <div className="xl:col-span-5 rounded-2xl bg-white border border-gray-200/80 p-6 shadow-2xs flex flex-col justify-between">
           <div>
             <div className="flex items-start justify-between mb-2">
               <div>
@@ -348,9 +348,9 @@ export default function AdminDashboardPage() {
       </div>
 
       {/* 4. Bottom Section: Popular Paradise Gifts + Quick Operations */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+      <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 items-stretch">
         {/* Left Card: Popular Paradise Gifts matching Image 2 */}
-        <div className="lg:col-span-7 rounded-2xl bg-white border border-gray-200/80 p-6 shadow-2xs">
+        <div className="xl:col-span-7 rounded-2xl bg-white border border-gray-200/80 p-6 shadow-2xs">
           <h2 className="text-sm font-bold text-gray-900 mb-4">
             Popular Paradise Gifts
           </h2>
@@ -386,7 +386,7 @@ export default function AdminDashboardPage() {
         </div>
 
         {/* Right Card: Quick Operations matching Image 2 */}
-        <div className="lg:col-span-5 rounded-2xl bg-white border border-gray-200/80 p-6 shadow-2xs flex flex-col justify-between">
+        <div className="xl:col-span-5 rounded-2xl bg-white border border-gray-200/80 p-6 shadow-2xs flex flex-col justify-between">
           <div>
             <h2 className="text-sm font-bold text-gray-900 mb-4">
               Quick Operations

@@ -20,11 +20,11 @@ export default function HomePage() {
 
   const flowerProducts = products.filter(p => p.category === "flowers");
   const cakeProducts = products.filter(p => p.category === "cakes");
-  const newlyLaunchedProducts = products.filter(p => p.category === "personalised-gifts" || p.category === "home-decor").slice(0, 5);
+  const personalisedProducts = products.filter(p => p.category === "personalised-gifts" || p.isPersonalised);
   const plantProducts = products.filter(p => p.category === "plants");
 
   return (
-    <div className="w-full flex flex-col min-h-screen">
+    <div className="w-full flex flex-col min-h-screen pb-[75px] md:pb-0">
       {/* 1. Category Icon Strip */}
       <CategoryStrip />
 
@@ -74,13 +74,13 @@ export default function HomePage() {
       {/* 10. Gifts for Every Feeling Emotion Cards */}
       <FeelingCards />
 
-      {/* 11. Newly Launched Innovations Shelf */}
+      {/* 11. Personalised Gifts Shelf */}
       <ProductShelf
-        title="Newly Launched Innovations"
-        subtitle="Fresh from our Repalle workshop: custom neon glow art, rotating cubes & Spotify plaques"
-        badge="STUDIO ORIGINALS"
+        title="Personalised Gifts"
+        subtitle="Handcrafted custom 3D lamps, engraved wooden portraits, Spotify plaques & rotating cubes from our Repalle workshop"
+        badge="BESPOKE KEEPSAKES"
         viewAllLink="/category/personalised-gifts"
-        products={newlyLaunchedProducts}
+        products={personalisedProducts}
         bgClass="bg-white"
         cardStyle="standard"
       />

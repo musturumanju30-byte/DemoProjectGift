@@ -1,6 +1,9 @@
 @import "tailwindcss";
 
 @theme {
+  --font-sans: var(--font-poppins), 'Poppins', system-ui, -apple-system, sans-serif;
+  --font-serif: var(--font-playfair), 'Playfair Display', Georgia, serif;
+
   --color-brand-pink: #F72585;
   --color-brand-pink-dark: #D6136C;
   --color-brand-pink-light: #FEE8F2;
@@ -25,21 +28,40 @@
   --foreground: #0a0a0a;
 }
 
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
 html,
-body {
+body,
+#root {
   width: 100%;
-  min-width: 100%;
   max-width: 100%;
+  min-width: 0;
   margin: 0;
   padding: 0;
+  box-sizing: border-box;
+}
+
+@media (max-width: 768px) {
+  html,
+  body {
+    width: 100%;
+    width: 100vw;
+    max-width: 100vw;
+    overflow-x: hidden;
+  }
 }
 
 body {
+  font-family: var(--font-poppins), 'Poppins', system-ui, -apple-system, sans-serif;
   background-color: #ffffff;
   color: #0a0a0a;
   font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   overflow-x: hidden;
-  padding-bottom: 3.5rem;
+  padding-bottom: calc(3.75rem + env(safe-area-inset-bottom, 0px));
 }
 
 @media (min-width: 768px) {
@@ -100,4 +122,24 @@ a:focus-visible, button:focus-visible {
 .coupon-ticket::after {
   right: -9px;
   border-left: 1px dashed #C9A227;
+}
+
+/* Sleek Thin Scrollbar for Cart Drawer & Modals */
+.thin-scrollbar::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+.thin-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.thin-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.16);
+  border-radius: 9999px;
+}
+.thin-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.28);
+}
+.thin-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.16) transparent;
 }

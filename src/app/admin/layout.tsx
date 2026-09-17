@@ -17,21 +17,66 @@ import {
   X,
   Gift,
   ExternalLink,
+  Lock,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { logout } = useAuth();
+  const { user, isAdmin, isLoading, logout } = useAuth();
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
 
-  // If on admin login page, don't wrap with admin navigation
+  // If on admin login page, don't wrap with admin navigation or blocking gate
   if (pathname === "/admin/login") {
     return <>{children}</>;
   }
 
-  // Exact navigation items matching the reference image
+  // 1. Loading screen during session and role verification
+  if (isLoading) {
+    return (
+      <div className="w-full min-h-screen bg-[#181C28] flex flex-col items-center justify-center p-6 text-white font-sans">
+        <div className="h-10 w-10 rounded-full border-3 border-[#F72585] border-t-transparent animate-spin mb-4" />
+        <p className="text-sm font-semibold tracking-wide">Verifying Admin Authorization...</p>
+        <p className="text-xs text-gray-400 mt-1">Checking database security policies</p>
+      </div>
+    );
+  }
+
+  // 2. Strict Role-Based Gatekeeper: Block unauthorized access
+  if (!user || !isAdmin) {
+    return (
+      <div className="w-full min-h-screen bg-[#0E131F] flex flex-col items-center justify-center p-6 text-white font-sans">
+        <div className="max-w-md w-full bg-[#181C28] border border-gray-800 rounded-3xl p-8 text-center shadow-2xl space-y-4">
+          <div className="h-14 w-14 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-400 flex items-center justify-center mx-auto">
+            <Lock className="h-7 w-7" />
+          </div>
+          <h2 className="text-xl font-black text-white tracking-tight">
+            Administrator Access Required
+          </h2>
+          <p className="text-xs text-gray-400 leading-relaxed">
+            This internal SaaS terminal is strictly reserved for authenticated Creative Paradise store managers. Your current session does not possess verified administrator rights.
+          </p>
+          <div className="pt-3 flex flex-col gap-2.5">
+            <Link
+              href="/admin/login"
+              className="w-full py-3 px-4 rounded-xl bg-[#F72585] hover:bg-[#d6136c] text-white text-xs font-bold transition flex items-center justify-center shadow-md shadow-pink-500/25"
+            >
+              Sign In with Admin Credentials
+            </Link>
+            <Link
+              href="/"
+              className="w-full py-2.5 px-4 rounded-xl bg-white/5 hover:bg-white/10 text-gray-300 text-xs font-semibold transition flex items-center justify-center border border-gray-800"
+            >
+              Return to Customer Storefront
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Exact navigation items matching the admin specification
   const navItems = [
     { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
     { label: "Orders", href: "/admin/orders", icon: ShoppingBag },
@@ -42,10 +87,15 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { label: "Settings", href: "/admin/settings", icon: Settings },
   ];
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await logout();
     router.push("/admin/login");
   };
+
+  const adminDisplayName = user?.name || "Store Administrator";
+  const adminDisplayAvatar =
+    user?.avatarUrl ||
+    "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=200&auto=format&fit=crop";
 
   return (
     <div className="w-full min-w-0 bg-[#F8FAFC] min-h-screen text-gray-900 flex flex-col md:flex-row font-sans antialiased">
@@ -147,14 +197,15 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               <div className="flex items-center gap-3 min-w-0">
                 <div className="relative h-9 w-9 rounded-full overflow-hidden shrink-0 border border-gray-600">
                   <Image
-                    src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=200&auto=format&fit=crop"
-                    alt="Sarah Jenkins"
+                    src={adminDisplayAvatar}
+                    alt={adminDisplayName}
                     fill
+                    sizes="36px"
                     className="object-cover"
                   />
                 </div>
                 <div className="min-w-0">
-                  <div className="text-xs font-semibold text-white truncate">Sarah Jenkins</div>
+                  <div className="text-xs font-semibold text-white truncate">{adminDisplayName}</div>
                   <div className="text-[10px] text-gray-400 truncate">Super Admin</div>
                 </div>
               </div>
@@ -171,10 +222,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </div>
       )}
 
-      {/* Desktop Sidebar (≥ 768px): Exact Match to Image 2 */}
+      {/* Desktop Sidebar (≥ 768px) */}
       <aside className="hidden md:flex w-64 bg-[#181C28] p-5 shrink-0 flex-col justify-between sticky top-0 h-screen text-white select-none">
         <div className="space-y-6">
-          {/* Top Brand Header matching Image 2 */}
+          {/* Top Brand Header */}
           <div className="flex items-center gap-3 pt-1">
             <div className="h-10 w-10 rounded-xl bg-[#F72585] flex items-center justify-center text-white shadow-md shadow-pink-600/30 shrink-0">
               <Gift className="h-5 w-5" />
@@ -189,7 +240,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </div>
           </div>
 
-          {/* Navigation Items with Pink Active Dot matching Image 2 */}
+          {/* Navigation Items with Pink Active Dot */}
           <nav className="space-y-1.5 pt-2">
             {navItems.map(item => {
               const Icon = item.icon;
@@ -208,7 +259,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     <Icon className={`h-4 w-4 shrink-0 ${isActive ? "text-white" : "text-gray-400"}`} />
                     <span>{item.label}</span>
                   </div>
-                  {/* Pink indicator dot on active state matching Image 2 */}
                   {isActive && <div className="h-1.5 w-1.5 rounded-full bg-[#F72585]" />}
                 </Link>
               );
@@ -216,20 +266,21 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </nav>
         </div>
 
-        {/* Bottom User Card: Sarah Jenkins matching Image 2 */}
+        {/* Bottom User Card */}
         <div className="p-3 rounded-2xl bg-[#212638] flex items-center justify-between">
           <div className="flex items-center gap-3 min-w-0">
             <div className="relative h-9 w-9 rounded-full overflow-hidden shrink-0 border border-gray-600">
               <Image
-                src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=200&auto=format&fit=crop"
-                alt="Sarah Jenkins"
+                src={adminDisplayAvatar}
+                alt={adminDisplayName}
                 fill
+                sizes="36px"
                 className="object-cover"
               />
             </div>
 
             <div className="min-w-0">
-              <div className="text-xs font-semibold text-white truncate">Sarah Jenkins</div>
+              <div className="text-xs font-semibold text-white truncate">{adminDisplayName}</div>
               <div className="text-[10px] text-gray-400 font-normal truncate">Super Admin</div>
             </div>
           </div>
@@ -246,8 +297,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </aside>
 
       {/* Main Admin Canvas */}
-      <main className="flex-1 bg-[#F8FAFC] min-w-0 overflow-y-auto">
-        <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto space-y-6">
+      <main className="flex-1 bg-[#F8FAFC] min-w-0 w-full overflow-y-auto min-h-screen">
+        <div className="w-full min-w-0 px-4 sm:px-6 lg:px-8 py-6 space-y-6">
           {children}
         </div>
       </main>

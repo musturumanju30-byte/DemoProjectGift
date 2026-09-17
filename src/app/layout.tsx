@@ -1,5 +1,5 @@
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import type { Metadata, Viewport } from "next";
+import { Poppins, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import { StoreProvider } from "@/context/StoreContext";
 import { CartProvider } from "@/context/CartContext";
@@ -10,9 +10,17 @@ import { CartDrawer } from "@/components/cart/CartDrawer";
 import { AuthDrawer } from "@/components/auth/AuthDrawer";
 import { OneSignalPrompt } from "@/components/notifications/OneSignalPrompt";
 
-const inter = Inter({
+const poppins = Poppins({
   subsets: ["latin"],
-  variable: "--font-inter",
+  weight: ["300", "400", "500", "600", "700"],
+  variable: "--font-poppins",
+  display: "swap",
+});
+
+const playfair = Playfair_Display({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"],
+  variable: "--font-playfair",
   display: "swap",
 });
 
@@ -41,26 +49,33 @@ export const metadata: Metadata = {
   },
 };
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  viewportFit: "cover",
+};
+
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${inter.variable} h-full w-full antialiased font-sans`}>
-      <body className="min-h-full w-full flex flex-col bg-white text-gray-900 selection:bg-pink-100 selection:text-[#F72585]">
-        <StoreProvider>
-          <CartProvider>
-            <AuthProvider>
+    <html lang="en" className={`${poppins.variable} ${playfair.variable} h-full w-full antialiased`}>
+      <body className="min-h-full w-full flex flex-col bg-white text-gray-900 font-sans selection:bg-pink-100 selection:text-[#F72585]">
+        <AuthProvider>
+          <StoreProvider>
+            <CartProvider>
               <Header />
               <main className="flex-1 w-full min-w-0">{children}</main>
               <CartDrawer />
               <AuthDrawer />
               <OneSignalPrompt />
               <Footer />
-            </AuthProvider>
-          </CartProvider>
-        </StoreProvider>
+            </CartProvider>
+          </StoreProvider>
+        </AuthProvider>
       </body>
     </html>
   );

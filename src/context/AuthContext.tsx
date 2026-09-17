@@ -1,7 +1,8 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { isSupabaseConfigured, supabase } from "@/lib/supabase";
+import type { User as SupabaseUser } from "@supabase/supabase-js";
 
 export interface AuthUser {
   id: string;
@@ -13,127 +14,370 @@ export interface AuthUser {
   role: "customer" | "admin";
 }
 
+interface AuthResponse {
+  success: boolean;
+  error?: string;
+}
+
 interface AuthContextType {
   user: AuthUser | null;
   isAdmin: boolean;
   isLoading: boolean;
   isAuthModalOpen: boolean;
+  isDemoMode: boolean;
   openAuthModal: () => void;
   closeAuthModal: () => void;
-  login: (email: string, role?: "customer" | "admin") => Promise<void>;
+  sendEmailOtp: (email: string) => Promise<AuthResponse>;
+  verifyOtp: (email: string, otp: string) => Promise<AuthResponse>;
+  signInWithPassword: (email: string, password: string) => Promise<AuthResponse>;
+  signUpWithPassword: (
+    name: string,
+    email: string,
+    password: string,
+    phone?: string
+  ) => Promise<AuthResponse>;
   loginWithGoogle: (redirectPath?: string) => Promise<void>;
-  verifyOtp: (email: string, otp: string) => Promise<boolean>;
   loginAsDemoCustomer: () => void;
   loginAsAdmin: () => void;
-  signup: (name: string, email: string, phone: string) => Promise<void>;
   logout: () => Promise<void>;
+  refreshProfile: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+// Demo mode is strictly restricted to development/preview environments
+const IS_DEMO_MODE = process.env.NEXT_PUBLIC_DEMO_MODE === "true";
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
-  useEffect(() => {
-    // 1. Initial hydration from localStorage
-    try {
-      const savedUser = localStorage.getItem("cp_user");
-      if (savedUser) {
-        const parsed = JSON.parse(savedUser);
-        // Clear old dummy phone placeholder if present
-        if (parsed.phone === "9848012345" && parsed.id !== "cust-demo") {
-          parsed.phone = "";
-          localStorage.setItem("cp_user", JSON.stringify(parsed));
-        }
-        setUser(parsed);
-      }
-    } catch (e) {
-      console.error("Failed to load user from localStorage:", e);
-    } finally {
-      setIsLoading(false);
-    }
+  /**
+   * Securely loads profile and verified role from Supabase database `public.profiles`.
+   * Never relies on client-provided or localStorage role values.
+   */
+  const loadVerifiedUserProfile = useCallback(
+    async (sbUser: SupabaseUser): Promise<AuthUser> => {
+      const meta = sbUser.user_metadata || {};
+      const fallbackName =
+        meta.full_name ||
+        meta.name ||
+        (sbUser.email
+          ? sbUser.email
+              .split("@")[0]
+              .replace(/[._]/g, " ")
+              .replace(/\b\w/g, c => c.toUpperCase())
+          : "Customer");
 
-    // 2. Listen to real Supabase auth state changes (e.g. after Google OAuth redirect)
+      let verifiedRole: "customer" | "admin" = "customer";
+      let profileName = fallbackName;
+      let profilePhone = sbUser.phone || meta.phone || "";
+      let profileAvatar = meta.avatar_url || meta.picture || "";
+
+      if (isSupabaseConfigured) {
+        try {
+          const { data: profile, error } = await supabase
+            .from("profiles")
+            .select("role, name, phone, avatar_url")
+            .eq("id", sbUser.id)
+            .maybeSingle();
+
+          if (profile && !error) {
+            if (profile.role === "admin") {
+              verifiedRole = "admin";
+            }
+            if (profile.name) profileName = profile.name;
+            if (profile.phone) profilePhone = profile.phone;
+            if (profile.avatar_url) profileAvatar = profile.avatar_url;
+          } else if (!error && !profile) {
+            // Table exists, but no profile row for this user yet -> initialize customer profile
+            try {
+              await supabase.from("profiles").upsert(
+                {
+                  id: sbUser.id,
+                  email: (sbUser.email || "").toLowerCase(),
+                  name: fallbackName,
+                  avatar_url: profileAvatar,
+                  phone: profilePhone,
+                  role: "customer",
+                  updated_at: new Date().toISOString(),
+                },
+                { onConflict: "id" }
+              );
+            } catch (upsertErr) {
+              console.warn("Could not initialize profile record:", upsertErr);
+            }
+          } else if (error) {
+            // Table does not exist in Supabase yet -> do not attempt upsert, log informative notice
+            console.warn(
+              "Notice: Could not load user profile from Supabase 'profiles' table. " +
+                "Please execute section 4 in supabase/schema.sql in your Supabase SQL Editor to enable database profiles. " +
+                `(${error.message || error.code || "Table not found"})`
+            );
+          }
+        } catch (dbErr) {
+          console.warn("Could not query profiles table for role:", dbErr);
+        }
+      }
+
+      const verifiedUser: AuthUser = {
+        id: sbUser.id,
+        name: profileName,
+        email: (sbUser.email || "").toLowerCase(),
+        phone: profilePhone,
+        avatarUrl: profileAvatar,
+        provider: sbUser.app_metadata?.provider === "google" ? "google" : "email",
+        role: verifiedRole,
+      };
+
+      return verifiedUser;
+    },
+    []
+  );
+
+  // Synchronize auth state on mount and subscribe to Supabase Auth events
+  useEffect(() => {
+    let isMounted = true;
+
+    const initAuth = async () => {
+      try {
+        if (!isSupabaseConfigured) {
+          // If demo user was set in local dev, allow only when DEMO mode is enabled
+          if (IS_DEMO_MODE) {
+            const saved = localStorage.getItem("cp_user_demo");
+            if (saved && isMounted) {
+              setUser(JSON.parse(saved));
+            }
+          }
+          return;
+        }
+
+        // 1. Check live session from Supabase (Source of Truth)
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+
+        if (session?.user && isMounted) {
+          const verifiedUser = await loadVerifiedUserProfile(session.user);
+          if (isMounted) {
+            setUser(verifiedUser);
+          }
+        } else if (IS_DEMO_MODE) {
+          // Demo fallback in dev environment
+          const savedDemo = localStorage.getItem("cp_user_demo");
+          if (savedDemo && isMounted) {
+            setUser(JSON.parse(savedDemo));
+          }
+        }
+      } catch (err) {
+        console.error("Failed to initialize auth session:", err);
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    initAuth();
+
+    // 2. Listen to real Supabase auth state changes (OAuth redirect, OTP verify, password, sign out)
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (!isMounted) return;
+
       if (session?.user) {
-        const u = session.user;
-        const meta = u.user_metadata || {};
-        const fullName =
-          meta.full_name ||
-          meta.name ||
-          (u.email ? u.email.split("@")[0].replace(/[._]/g, " ").replace(/\b\w/g, c => c.toUpperCase()) : "Customer");
-
-        const authUser: AuthUser = {
-          id: u.id,
-          name: fullName,
-          email: (u.email || "").toLowerCase(),
-          phone: u.phone || meta.phone || "",
-          avatarUrl: meta.avatar_url || meta.picture,
-          provider: "google",
-          role: "customer",
-        };
-
-        setUser(authUser);
-        localStorage.setItem("cp_user", JSON.stringify(authUser));
-
-        // Sync customer record to Supabase database if configured
-        if (isSupabaseConfigured) {
-          try {
-            await supabase.from("customers").upsert(
-              {
-                id: u.id,
-                name: authUser.name,
-                email: authUser.email,
-                avatar_url: authUser.avatarUrl,
-                phone: authUser.phone,
-                updated_at: new Date().toISOString(),
-              },
-              { onConflict: "id" }
-            );
-          } catch (dbErr) {
-            console.warn("Could not sync customer to database table:", dbErr);
-          }
+        const verifiedUser = await loadVerifiedUserProfile(session.user);
+        if (isMounted) {
+          setUser(verifiedUser);
+          setIsLoading(false);
         }
       } else if (event === "SIGNED_OUT") {
-        setUser(null);
-        localStorage.removeItem("cp_user");
+        if (isMounted) {
+          setUser(null);
+          setIsLoading(false);
+          localStorage.removeItem("cp_user_demo");
+          localStorage.removeItem("cp_user");
+        }
       }
     });
 
     return () => {
+      isMounted = false;
       subscription.unsubscribe();
     };
-  }, []);
+  }, [loadVerifiedUserProfile]);
 
   const openAuthModal = () => setIsAuthModalOpen(true);
   const closeAuthModal = () => setIsAuthModalOpen(false);
 
-  const login = async (email: string, role: "customer" | "admin" = "customer") => {
-    const formattedName = email
-      .split("@")[0]
-      .replace(/[._]/g, " ")
-      .replace(/\b\w/g, c => c.toUpperCase());
+  const refreshProfile = async () => {
+    try {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      if (session?.user) {
+        const verified = await loadVerifiedUserProfile(session.user);
+        setUser(verified);
+      }
+    } catch (e) {
+      console.warn("Could not refresh profile:", e);
+    }
+  };
 
-    const newUser: AuthUser = {
-      id: `usr-${Date.now()}`,
-      name: formattedName || "Customer",
-      email: email.trim().toLowerCase(),
-      phone: "",
-      provider: "email",
-      role,
-    };
-    setUser(newUser);
-    localStorage.setItem("cp_user", JSON.stringify(newUser));
-    closeAuthModal();
+  /**
+   * Real Supabase Email OTP: sends a secure 6-digit one-time passcode to the user's inbox
+   */
+  const sendEmailOtp = async (email: string): Promise<AuthResponse> => {
+    if (!isSupabaseConfigured) {
+      return {
+        success: false,
+        error: "Supabase credentials are not configured. Please check environment variables.",
+      };
+    }
+
+    try {
+      const origin = typeof window !== "undefined" ? window.location.origin : "";
+      const { error } = await supabase.auth.signInWithOtp({
+        email: email.trim().toLowerCase(),
+        options: {
+          shouldCreateUser: true,
+          emailRedirectTo: `${origin}/auth/callback`,
+        },
+      });
+
+      if (error) {
+        if (
+          error.message?.toLowerCase().includes("error sending") ||
+          error.status === 500 ||
+          error.name === "AuthApiError"
+        ) {
+          return {
+            success: false,
+            error:
+              "Supabase email service error: Either Custom SMTP was enabled with unverified credentials, or Supabase's default rate limit (3 emails/hour) was reached. Try 'Continue with Google' or check your Supabase SMTP settings.",
+          };
+        }
+        return { success: false, error: error.message };
+      }
+
+      return { success: true };
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Failed to send verification code.";
+      return { success: false, error: message };
+    }
+  };
+
+  /**
+   * Real Supabase OTP Verification: Validates the 6-digit token against Supabase Auth.
+   * Fails genuinely if code is invalid, expired, or wrong.
+   */
+  const verifyOtp = async (email: string, otp: string): Promise<AuthResponse> => {
+    if (!isSupabaseConfigured) {
+      return { success: false, error: "Supabase credentials are not configured." };
+    }
+
+    try {
+      const { data, error } = await supabase.auth.verifyOtp({
+        email: email.trim().toLowerCase(),
+        token: otp.trim(),
+        type: "email",
+      });
+
+      if (error) {
+        return { success: false, error: error.message };
+      }
+
+      if (data.user) {
+        const verified = await loadVerifiedUserProfile(data.user);
+        setUser(verified);
+      }
+
+      closeAuthModal();
+      return { success: true };
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Failed to verify OTP token.";
+      return { success: false, error: message };
+    }
+  };
+
+  /**
+   * Real Supabase Password Sign-In (Used for Admin Portal & Customer Login)
+   */
+  const signInWithPassword = async (email: string, password: string): Promise<AuthResponse> => {
+    if (!isSupabaseConfigured) {
+      return { success: false, error: "Supabase credentials are not configured." };
+    }
+
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: email.trim().toLowerCase(),
+        password,
+      });
+
+      if (error) {
+        return { success: false, error: error.message };
+      }
+
+      if (data.user) {
+        const verified = await loadVerifiedUserProfile(data.user);
+        setUser(verified);
+      }
+
+      closeAuthModal();
+      return { success: true };
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Sign in failed.";
+      return { success: false, error: message };
+    }
+  };
+
+  /**
+   * Real Supabase Sign-Up with Email & Password
+   */
+  const signUpWithPassword = async (
+    name: string,
+    email: string,
+    password: string,
+    phone?: string
+  ): Promise<AuthResponse> => {
+    if (!isSupabaseConfigured) {
+      return { success: false, error: "Supabase credentials are not configured." };
+    }
+
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email: email.trim().toLowerCase(),
+        password,
+        options: {
+          data: {
+            full_name: name.trim(),
+            name: name.trim(),
+            phone: phone?.trim() || "",
+          },
+        },
+      });
+
+      if (error) {
+        return { success: false, error: error.message };
+      }
+
+      if (data.user) {
+        const verified = await loadVerifiedUserProfile(data.user);
+        setUser(verified);
+      }
+
+      closeAuthModal();
+      return { success: true };
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Sign up failed.";
+      return { success: false, error: message };
+    }
   };
 
   /**
    * Real Google OAuth 2.0 flow via Supabase
-   * Triggers Google's real hosted sign-in flow at accounts.google.com
    */
   const loginWithGoogle = async (redirectPath: string = "/account") => {
     const origin = typeof window !== "undefined" ? window.location.origin : "";
@@ -160,15 +404,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const verifyOtp = async (email: string, otp: string): Promise<boolean> => {
-    if (otp.trim().length === 4 || otp.trim().length === 6) {
-      await login(email);
-      return true;
-    }
-    return false;
-  };
-
+  /**
+   * Demo Customer Login: Strictly gated behind NEXT_PUBLIC_DEMO_MODE=true.
+   * Completely disabled in live production.
+   */
   const loginAsDemoCustomer = () => {
+    if (!IS_DEMO_MODE) {
+      console.warn("Demo customer login is disabled in production environments.");
+      return;
+    }
+
     const demoCustomer: AuthUser = {
       id: "cust-demo",
       name: "Sai Teja",
@@ -178,45 +423,47 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       role: "customer",
     };
     setUser(demoCustomer);
-    localStorage.setItem("cp_user", JSON.stringify(demoCustomer));
+    localStorage.setItem("cp_user_demo", JSON.stringify(demoCustomer));
     closeAuthModal();
   };
 
+  /**
+   * Demo Admin Login: Strictly gated behind NEXT_PUBLIC_DEMO_MODE=true.
+   * Completely disabled in live production.
+   */
   const loginAsAdmin = () => {
-    const adminUser: AuthUser = {
+    if (!IS_DEMO_MODE) {
+      console.warn("Demo admin login is disabled in production environments.");
+      return;
+    }
+
+    const demoAdmin: AuthUser = {
       id: "admin-master",
       name: "Creative Paradise Admin",
       email: "admin@repallgifts.com",
       phone: "9177003905",
-      provider: "email",
+      provider: "demo",
       role: "admin",
     };
-    setUser(adminUser);
-    localStorage.setItem("cp_user", JSON.stringify(adminUser));
+    setUser(demoAdmin);
+    localStorage.setItem("cp_user_demo", JSON.stringify(demoAdmin));
     closeAuthModal();
   };
 
-  const signup = async (name: string, email: string, phone: string) => {
-    const newUser: AuthUser = {
-      id: `usr-${Date.now()}`,
-      name,
-      email: email.trim().toLowerCase(),
-      phone,
-      provider: "email",
-      role: "customer",
-    };
-    setUser(newUser);
-    localStorage.setItem("cp_user", JSON.stringify(newUser));
-    closeAuthModal();
-  };
-
+  /**
+   * Proper Logout Flow: Invalidates the Supabase session first, then resets client state
+   */
   const logout = async () => {
-    setUser(null);
-    localStorage.removeItem("cp_user");
     try {
-      await supabase.auth.signOut();
+      if (isSupabaseConfigured) {
+        await supabase.auth.signOut();
+      }
     } catch (e) {
       console.warn("Error during Supabase signOut:", e);
+    } finally {
+      setUser(null);
+      localStorage.removeItem("cp_user_demo");
+      localStorage.removeItem("cp_user");
     }
   };
 
@@ -227,15 +474,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isAdmin: user?.role === "admin",
         isLoading,
         isAuthModalOpen,
+        isDemoMode: IS_DEMO_MODE,
         openAuthModal,
         closeAuthModal,
-        login,
-        loginWithGoogle,
+        sendEmailOtp,
         verifyOtp,
+        signInWithPassword,
+        signUpWithPassword,
+        loginWithGoogle,
         loginAsDemoCustomer,
         loginAsAdmin,
-        signup,
         logout,
+        refreshProfile,
       }}
     >
       {children}

@@ -4,6 +4,7 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 import { Product, Order, OrderStatus, Customer, TrackingStep } from "@/types";
 import { INITIAL_PRODUCTS } from "@/data/products";
 import { SERVICEABLE_PINCODES } from "@/data/locations";
+import { useAuth } from "@/context/AuthContext";
 
 interface StoreContextType {
   products: Product[];
@@ -230,6 +231,7 @@ const INITIAL_CUSTOMERS: Customer[] = [
 const StoreContext = createContext<StoreContextType | undefined>(undefined);
 
 export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { user, isAdmin } = useAuth();
   const [products, setProducts] = useState<Product[]>(INITIAL_PRODUCTS);
   const [orders, setOrders] = useState<Order[]>(INITIAL_ORDERS);
   const [customers, setCustomers] = useState<Customer[]>(INITIAL_CUSTOMERS);
@@ -302,18 +304,8 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
 
     // Fetch cloud orders from Supabase via /api/orders (filtered by logged-in customer for data privacy)
-    let userEmail = "";
-    let userId = "";
-    let isAdmin = false;
-    try {
-      const rawUser = localStorage.getItem("cp_user");
-      if (rawUser) {
-        const u = JSON.parse(rawUser);
-        isAdmin = u.role === "admin";
-        userEmail = u.email || "";
-        userId = u.id || "";
-      }
-    } catch {}
+    const userEmail = user?.email || "";
+    const userId = user?.id || "";
 
     const apiUrl =
       !isAdmin && userEmail
@@ -630,12 +622,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
     if (localMatch) {
       if (userId) {
-        let currentEmail = "";
-        try {
-          const raw = localStorage.getItem("cp_user");
-          if (raw) currentEmail = (JSON.parse(raw).email || "").toLowerCase();
-        } catch {}
-
+        const currentEmail = (user?.email || "").toLowerCase();
         const isOwner =
           localMatch.userId === userId ||
           (currentEmail && localMatch.customerEmail.toLowerCase() === currentEmail);

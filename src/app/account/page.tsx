@@ -30,13 +30,23 @@ function AccountPageContent() {
   const initialTab = searchParams.get("tab") || "orders";
   const urlError = searchParams.get("error");
 
-  const { user, login, loginAsDemoCustomer, signup, logout, openAuthModal, loginWithGoogle } = useAuth();
+  const {
+    user,
+    signInWithPassword,
+    signUpWithPassword,
+    loginAsDemoCustomer,
+    logout,
+    openAuthModal,
+    loginWithGoogle,
+    isDemoMode,
+  } = useAuth();
   const { orders, wishlist, products } = useStore();
   const { addToCart } = useCart();
 
   const [activeTab, setActiveTab] = useState<string>(initialTab);
   const [authError, setAuthError] = useState<string>(urlError || "");
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Auth form states
   const [authMode, setAuthMode] = useState<"login" | "signup">("login");
@@ -44,9 +54,10 @@ function AccountPageContent() {
   const [loginPassword, setLoginPassword] = useState("");
   const [signupName, setSignupName] = useState("");
   const [signupEmail, setSignupEmail] = useState("");
+  const [signupPassword, setSignupPassword] = useState("");
   const [signupPhone, setSignupPhone] = useState("");
 
-  // Filter user orders strictly by authenticated account ID or Gmail address
+  // Filter user orders strictly by authenticated account ID or email address
   const userOrders = user
     ? orders.filter(
         o =>
@@ -59,14 +70,32 @@ function AccountPageContent() {
 
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!loginEmail.trim()) return;
-    await login(loginEmail);
+    setAuthError("");
+    if (!loginEmail.trim() || !loginPassword) {
+      setAuthError("Please enter both email and password.");
+      return;
+    }
+    setIsSubmitting(true);
+    const res = await signInWithPassword(loginEmail.trim(), loginPassword);
+    setIsSubmitting(false);
+    if (!res.success) {
+      setAuthError(res.error || "Sign in failed. Please verify your credentials or use the Express Login Drawer.");
+    }
   };
 
   const handleSignupSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!signupName.trim() || !signupEmail.trim()) return;
-    await signup(signupName, signupEmail, signupPhone);
+    setAuthError("");
+    if (!signupName.trim() || !signupEmail.trim() || !signupPassword) {
+      setAuthError("Please enter your name, email, and password.");
+      return;
+    }
+    setIsSubmitting(true);
+    const res = await signUpWithPassword(signupName.trim(), signupEmail.trim(), signupPassword, signupPhone);
+    setIsSubmitting(false);
+    if (!res.success) {
+      setAuthError(res.error || "Account creation failed. Please try again.");
+    }
   };
 
   if (!user) {
@@ -218,11 +247,28 @@ function AccountPageContent() {
                 />
               </div>
 
+              <div>
+                <label htmlFor="signup-password-input" className="block text-xs font-bold text-gray-800 mb-1">Password</label>
+                <input
+                  id="signup-password-input"
+                  name="password"
+                  type="password"
+                  autoComplete="new-password"
+                  placeholder="Create a password (min. 6 characters)"
+                  value={signupPassword}
+                  onChange={e => setSignupPassword(e.target.value)}
+                  required
+                  minLength={6}
+                  className="w-full min-h-[44px] rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-xs font-medium focus:border-[#F72585] focus:outline-none"
+                />
+              </div>
+
               <button
                 type="submit"
-                className="w-full min-h-[44px] rounded-xl bg-[#F72585] py-3 text-xs font-bold text-white shadow-md hover:bg-[#d6136c] transition cursor-pointer flex items-center justify-center"
+                disabled={isSubmitting}
+                className="w-full min-h-[44px] rounded-xl bg-[#F72585] py-3 text-xs font-bold text-white shadow-md hover:bg-[#d6136c] transition cursor-pointer flex items-center justify-center disabled:opacity-70"
               >
-                Create Account
+                {isSubmitting ? "Creating Account..." : "Create Account"}
               </button>
             </form>
           )}
@@ -273,12 +319,16 @@ function AccountPageContent() {
               Open Slide-in Express Login Drawer
             </button>
 
-            <button
-              onClick={loginAsDemoCustomer}
-              className="w-full min-h-[44px] rounded-xl border border-dashed border-[#F72585] bg-pink-50/70 py-2.5 text-xs font-bold text-[#F72585] hover:bg-pink-100 transition cursor-pointer flex items-center justify-center"
-            >
-              ✨ Instant Demo Customer Login
-            </button>
+            {/* Strictly Gated Dev Demo Mode Customer Access */}
+            {isDemoMode && (
+              <button
+                type="button"
+                onClick={loginAsDemoCustomer}
+                className="w-full min-h-[44px] rounded-xl border border-dashed border-amber-400 bg-amber-50/80 py-2.5 text-xs font-bold text-amber-900 hover:bg-amber-100 transition cursor-pointer flex items-center justify-center"
+              >
+                ✨ [DEV ONLY] Instant Demo Customer Login
+              </button>
+            )}
           </div>
         </div>
       </div>

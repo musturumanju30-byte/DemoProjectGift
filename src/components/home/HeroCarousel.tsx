@@ -78,12 +78,12 @@ export const HeroCarousel: React.FC = () => {
   const nextSlideData = HERO_SLIDES[nextIndex];
 
   return (
-    <section className="w-full overflow-hidden py-4 sm:py-6 bg-white select-none">
+    <section className="w-full overflow-hidden py-4 sm:py-8 bg-white select-none font-sans">
       <div className="relative w-full flex items-center justify-center">
         {/* Left Peek Card (Desktop) */}
         <div
           onClick={prevSlide}
-          className={`hidden md:block absolute left-[-16%] lg:left-[-12%] xl:left-[-8%] w-[26%] lg:w-[22%] h-[340px] lg:h-[400px] rounded-r-3xl overflow-hidden cursor-pointer opacity-75 hover:opacity-95 transition-all duration-500 shadow-md ${prevSlideData.bgClass}`}
+          className={`hidden md:block absolute left-[-14%] lg:left-[-10%] xl:left-[-6%] w-[24%] lg:w-[20%] h-[380px] md:h-[440px] lg:h-[480px] rounded-r-3xl overflow-hidden cursor-pointer opacity-75 hover:opacity-95 transition-all duration-500 shadow-md ${prevSlideData.bgClass}`}
         >
           <Image
             src={prevSlideData.image}
@@ -98,7 +98,7 @@ export const HeroCarousel: React.FC = () => {
               e.stopPropagation();
               prevSlide();
             }}
-            className="absolute right-4 top-1/2 -translate-y-1/2 z-20 h-11 w-11 rounded-full bg-white/95 hover:bg-white text-gray-900 flex items-center justify-center shadow-lg transition active:scale-95"
+            className="absolute right-4 top-1/2 -translate-y-1/2 z-20 h-12 w-12 rounded-full bg-white/95 hover:bg-white text-gray-900 flex items-center justify-center shadow-xl transition active:scale-95 cursor-pointer"
             aria-label="Previous slide"
           >
             <ChevronLeft className="h-6 w-6 text-gray-800" />
@@ -106,14 +106,14 @@ export const HeroCarousel: React.FC = () => {
         </div>
 
         {/* Center Active Card */}
-        <div className="w-full max-w-[94%] sm:max-w-[92%] md:max-w-4xl lg:max-w-5xl xl:max-w-6xl mx-auto z-10 px-2">
+        <div className="w-full max-w-full sm:max-w-[92%] md:max-w-5xl lg:max-w-6xl xl:max-w-[1440px] 2xl:max-w-[1600px] mx-auto z-10 px-3.5 sm:px-4">
           <div
-            className={`relative min-h-[360px] sm:min-h-[400px] md:min-h-[420px] rounded-2xl sm:rounded-3xl overflow-hidden shadow-xl transition-all duration-700 flex items-center ${slide.bgClass}`}
+            className={`relative min-h-[360px] sm:min-h-[440px] md:min-h-[480px] lg:min-h-[520px] rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl transition-all duration-700 flex items-center ${slide.bgClass}`}
           >
             {/* Subtle gold grid texture */}
             <div className="absolute inset-0 bg-[radial-gradient(#C9A227_1px,transparent_1px)] [background-size:24px_24px] opacity-10 pointer-events-none" />
 
-            {/* Right side bouquet / product photo matching reference design */}
+            {/* Right side bouquet / product photo */}
             <div className="absolute right-0 top-0 bottom-0 w-full sm:w-1/2 md:w-3/5 opacity-40 sm:opacity-95 pointer-events-none transition-all duration-700">
               <Image
                 src={slide.image}
@@ -125,38 +125,39 @@ export const HeroCarousel: React.FC = () => {
               <div
                 className="absolute inset-0 hidden sm:block"
                 style={{
-                  background: `linear-gradient(to right, ${slide.bgHex} 0%, ${slide.bgHex}D9 45%, transparent 100%)`,
+                  background: `linear-gradient(to right, ${slide.bgHex} 0%, ${slide.bgHex}D9 42%, transparent 100%)`,
                 }}
               />
               <div className="absolute inset-0 sm:hidden bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
             </div>
 
             {/* Text & CTA block */}
-            <div className="relative z-10 w-full sm:w-3/5 lg:w-7/12 p-6 sm:p-10 md:p-12 text-white">
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 backdrop-blur-md px-3 py-1 text-[11px] font-bold text-[#FFF8E6] mb-3 border border-white/20">
-                <Sparkles className="h-3 w-3 text-[#C9A227]" />
+            <div className="relative z-10 w-full sm:w-3/5 lg:w-7/12 p-5 sm:p-10 md:p-12 lg:p-16 text-white">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 backdrop-blur-md px-3.5 py-1.5 text-xs font-bold text-[#FFF8E6] mb-3.5 border border-white/25 shadow-xs">
+                <Sparkles className="h-3.5 w-3.5 text-[#C9A227]" />
                 {slide.tag}
               </span>
 
-              <h1 className="text-2xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-white leading-tight">
+              <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-[52px] font-serif font-bold tracking-tight text-white leading-[1.18]">
                 {slide.title}
               </h1>
 
-              <p className="mt-3 text-xs sm:text-sm text-gray-200 leading-relaxed max-w-lg">
+              <p className="mt-3.5 text-xs sm:text-sm md:text-base text-gray-100 leading-relaxed max-w-xl">
                 {slide.subtitle}
               </p>
 
-              <div className="mt-6 flex items-center gap-3">
+              <div className="mt-7 flex items-center gap-4">
                 <Link
                   href={slide.ctaLink}
-                  className="inline-flex items-center gap-2 rounded-full bg-white px-7 py-3 text-xs sm:text-sm font-bold text-gray-900 shadow-md hover:bg-gray-100 hover:scale-105 transition-all duration-200 active:scale-95"
+                  className="inline-flex items-center gap-2.5 rounded-full bg-white px-8 py-3.5 text-sm sm:text-base font-bold text-gray-950 shadow-xl hover:bg-gray-100 hover:scale-105 transition-all duration-200 active:scale-95"
                 >
-                  {slide.ctaText} <ArrowRight className="h-4 w-4 text-[#F72585]" />
+                  <span>{slide.ctaText}</span>
+                  <ArrowRight className="h-4 w-4 text-[#F72585]" />
                 </Link>
               </div>
 
-              <div className="mt-4 flex items-center gap-2 text-[11px] text-amber-200 font-medium">
-                <Clock className="h-3.5 w-3.5 text-[#C9A227]" />
+              <div className="mt-5 flex items-center gap-2 text-xs sm:text-sm text-amber-200 font-medium">
+                <Clock className="h-4 w-4 text-[#C9A227]" />
                 <span>{slide.accentBadge}</span>
               </div>
             </div>
@@ -164,14 +165,14 @@ export const HeroCarousel: React.FC = () => {
             {/* Mobile Arrow buttons */}
             <button
               onClick={prevSlide}
-              className="md:hidden absolute left-2 top-1/2 -translate-y-1/2 z-20 h-9 w-9 rounded-full bg-black/50 text-white flex items-center justify-center backdrop-blur-xs"
+              className="md:hidden absolute left-2 top-1/2 -translate-y-1/2 z-20 h-10 w-10 rounded-full bg-black/60 text-white flex items-center justify-center backdrop-blur-xs"
               aria-label="Previous"
             >
               <ChevronLeft className="h-5 w-5" />
             </button>
             <button
               onClick={nextSlide}
-              className="md:hidden absolute right-2 top-1/2 -translate-y-1/2 z-20 h-9 w-9 rounded-full bg-black/50 text-white flex items-center justify-center backdrop-blur-xs"
+              className="md:hidden absolute right-2 top-1/2 -translate-y-1/2 z-20 h-10 w-10 rounded-full bg-black/60 text-white flex items-center justify-center backdrop-blur-xs"
               aria-label="Next"
             >
               <ChevronRight className="h-5 w-5" />
@@ -182,7 +183,7 @@ export const HeroCarousel: React.FC = () => {
         {/* Right Peek Card (Desktop) */}
         <div
           onClick={nextSlide}
-          className={`hidden md:block absolute right-[-16%] lg:right-[-12%] xl:right-[-8%] w-[26%] lg:w-[22%] h-[340px] lg:h-[400px] rounded-l-3xl overflow-hidden cursor-pointer opacity-75 hover:opacity-95 transition-all duration-500 shadow-md ${nextSlideData.bgClass}`}
+          className={`hidden md:block absolute right-[-14%] lg:right-[-10%] xl:right-[-6%] w-[24%] lg:w-[20%] h-[380px] md:h-[440px] lg:h-[480px] rounded-l-3xl overflow-hidden cursor-pointer opacity-75 hover:opacity-95 transition-all duration-500 shadow-md ${nextSlideData.bgClass}`}
         >
           <Image
             src={nextSlideData.image}
@@ -197,7 +198,7 @@ export const HeroCarousel: React.FC = () => {
               e.stopPropagation();
               nextSlide();
             }}
-            className="absolute left-4 top-1/2 -translate-y-1/2 z-20 h-11 w-11 rounded-full bg-white/95 hover:bg-white text-gray-900 flex items-center justify-center shadow-lg transition active:scale-95"
+            className="absolute left-4 top-1/2 -translate-y-1/2 z-20 h-12 w-12 rounded-full bg-white/95 hover:bg-white text-gray-900 flex items-center justify-center shadow-xl transition active:scale-95 cursor-pointer"
             aria-label="Next slide"
           >
             <ChevronRight className="h-6 w-6 text-gray-800" />
@@ -206,13 +207,13 @@ export const HeroCarousel: React.FC = () => {
       </div>
 
       {/* Slide Indicator Dots */}
-      <div className="flex items-center justify-center gap-2 mt-4">
+      <div className="flex items-center justify-center gap-2 mt-5">
         {HERO_SLIDES.map((s, idx) => (
           <button
             key={s.id}
             onClick={() => setCurrentSlide(idx)}
             className={`h-2 rounded-full transition-all duration-300 ${
-              currentSlide === idx ? "w-7 bg-[#F72585]" : "w-2 bg-gray-300 hover:bg-gray-400"
+              currentSlide === idx ? "w-8 bg-[#F72585]" : "w-2.5 bg-gray-300 hover:bg-gray-400"
             }`}
             aria-label={`Slide ${idx + 1}`}
           />

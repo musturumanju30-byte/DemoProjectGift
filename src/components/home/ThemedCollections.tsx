@@ -45,46 +45,63 @@ const ARTISANAL_COLLECTIONS = [
 
 export const ThemedCollections: React.FC = () => {
   return (
-    <section className="w-full bg-white py-16 sm:py-20 border-b border-gray-100">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section className="w-full bg-white py-10 sm:py-20 border-b border-gray-100 font-sans">
+      <div className="w-full max-w-[1700px] mx-auto px-3.5 sm:px-6 md:px-8 lg:px-12 xl:px-16">
         {/* Section Heading */}
-        <div className="text-center max-w-2xl mx-auto mb-12">
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-[#0A0A0A] tracking-tight inline-block font-serif">
+        <div className="text-center max-w-3xl mx-auto mb-8 sm:mb-14">
+          <span className="text-xs sm:text-[13px] font-bold text-[#C9A227] uppercase tracking-wider block mb-1">
+            EXQUISITE FLORAL DESIGNS
+          </span>
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-serif font-bold text-[#0A0A0A] tracking-tight inline-block leading-tight">
             Flowers Selection
-            <div className="h-0.5 w-12 bg-[#C9A227] mt-2 rounded-full mx-auto" />
+            <div className="h-0.5 w-14 bg-[#C9A227] mt-2 sm:mt-2.5 rounded-full mx-auto" />
           </h2>
-          <p className="text-xs sm:text-sm text-gray-500 mt-2">
+          <p className="text-xs sm:text-sm md:text-base text-gray-500 mt-2 leading-relaxed">
             Hand-curated bespoke floral arrangements styled for life&apos;s special moments
           </p>
         </div>
 
-        {/* Borderless collection thumbnails with generous spacing matching screenshot */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-6 sm:gap-8">
+        {/* Collection thumbnails: Horizontal carousel on mobile, 5-col on desktop */}
+        <div
+          className="flex md:grid overflow-x-auto md:overflow-visible no-scrollbar gap-2.5 sm:gap-6 md:gap-8 lg:gap-10 w-full pl-2.5 pr-3 -mx-2.5 sm:mx-0 md:px-0 md:grid-cols-5 scroll-smooth"
+          style={{ WebkitOverflowScrolling: "touch" }}
+        >
           {ARTISANAL_COLLECTIONS.map(item => (
-            <Link
-              key={item.id}
-              href={item.link}
-              className="group flex flex-col items-center text-center cursor-pointer"
-            >
-              {/* Softly Rounded Image Thumbnail without background box */}
-              <div className="relative aspect-square w-full rounded-2xl overflow-hidden bg-[#F9F7F5] shadow-xs group-hover:shadow-md transition-all duration-300">
-                <Image
-                  src={item.image}
-                  alt={item.title}
-                  fill
-                  className="object-cover group-hover:scale-106 transition-transform duration-500"
-                />
-              </div>
+            <div key={item.id} className="w-[135px] sm:w-[140px] md:w-full shrink-0 md:shrink" style={{ flex: "0 0 135px" }}>
+              <Link
+                href={item.link}
+                className="group flex flex-col items-center text-center cursor-pointer"
+              >
+                {/* Softly Rounded Image Thumbnail */}
+                <div className="relative aspect-square w-full rounded-[10px] sm:rounded-3xl overflow-hidden bg-[#F9F7F5] shadow-xs group-hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+                  <Image
+                    src={item.image}
+                    alt={item.title}
+                    fill
+                    className="object-cover group-hover:scale-108 transition-transform duration-500"
+                  />
+                </div>
 
-              {/* Short Label Underneath in Consistent Typography */}
-              <h3 className="mt-3.5 text-sm sm:text-base font-bold text-gray-900 group-hover:text-[#F72585] transition-colors leading-tight">
-                {item.title}
-              </h3>
-              <span className="text-xs text-gray-500 mt-1 flex items-center gap-1 font-medium group-hover:text-[#F72585] transition-colors">
-                Explore <ArrowRight className="h-3 w-3 inline" />
-              </span>
-            </Link>
+                {/* Short Label Underneath */}
+                <h3 className="mt-2 sm:mt-4 text-[11px] sm:text-base md:text-lg font-bold text-gray-900 group-hover:text-[#F72585] transition-colors leading-tight line-clamp-1">
+                  {item.title}
+                </h3>
+                <span className="text-[10px] sm:text-xs md:text-sm text-gray-500 mt-0.5 sm:mt-1 flex items-center gap-1 font-medium group-hover:text-[#F72585] transition-colors">
+                  Explore <ArrowRight className="h-3 w-3 sm:h-3.5 sm:w-3.5 inline" />
+                </span>
+              </Link>
+            </div>
           ))}
+        </div>
+
+        {/* Section-Level Explore Button on Mobile */}
+        <div className="mt-3.5 md:hidden">
+          <Link
+            href="/shop?collection=Flowers"
+            className="w-full h-[40px] flex items-center justify-center rounded-[7px] border border-[#ddd] bg-white text-[12.5px] font-semibold text-gray-800 shadow-2xs hover:bg-gray-50 active:scale-[0.99] transition-all"
+          >
+            <span>Explore Flowers Selection &gt;</span>
+          </Link>
         </div>
       </div>
     </section>
