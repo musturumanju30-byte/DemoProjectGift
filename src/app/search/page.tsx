@@ -24,10 +24,10 @@ function SearchPageContent() {
     : [];
 
   return (
-    <div className="w-full bg-gray-50/50 min-h-screen py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="w-full bg-gray-50/50 min-h-screen py-4 sm:py-8">
+      <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
         {/* Breadcrumb */}
-        <div className="flex items-center gap-1.5 text-xs text-gray-500 mb-6">
+        <div className="flex items-center gap-1.5 text-xs text-gray-500 mb-4 sm:mb-6">
           <Link href="/" className="hover:text-[#F72585] transition">
             Home
           </Link>
@@ -36,7 +36,7 @@ function SearchPageContent() {
         </div>
 
         {/* Header */}
-        <div className="mb-8">
+        <div className="mb-4 sm:mb-8">
           <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-900 tracking-tight">
             Search Results for &quot;{query}&quot;
           </h1>
@@ -45,24 +45,20 @@ function SearchPageContent() {
           </p>
         </div>
 
-        {/* Results or Empty State */}
         {matchingProducts.length === 0 ? (
-          <div className="rounded-3xl bg-white border border-gray-100 p-8 sm:p-12 text-center shadow-xs">
+          <div className="bg-white rounded-2xl p-12 text-center border border-gray-100 max-w-lg mx-auto shadow-xs">
             <div className="h-16 w-16 rounded-full bg-pink-50 flex items-center justify-center text-[#F72585] mx-auto mb-4">
               <Search className="h-8 w-8" />
             </div>
-            <h2 className="text-lg font-bold text-gray-900">
-              No exact matches found for &quot;{query}&quot;
-            </h2>
-            <p className="text-xs text-gray-500 mt-1 max-w-md mx-auto">
-              Don&apos;t worry! Explore our popular gifting categories handcrafted for birthdays, anniversaries, and same-day delivery.
+            <h2 className="text-lg font-bold text-gray-900 mb-2">No matching gifts found</h2>
+            <p className="text-xs text-gray-500 mb-6">
+              We couldn&apos;t find anything for &quot;{query}&quot;. Try exploring our popular categories below:
             </p>
-
-            <div className="mt-8">
-              <h3 className="text-xs font-extrabold text-gray-400 uppercase tracking-wider mb-4">
-                POPULAR CATEGORIES
-              </h3>
-              <div className="flex flex-wrap items-center justify-center gap-2 max-w-xl mx-auto">
+            <div className="space-y-2">
+              <span className="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-2">
+                Popular Categories
+              </span>
+              <div className="flex flex-wrap gap-2 justify-center">
                 {CATEGORIES_LIST.map(cat => (
                   <Link
                     key={cat.slug}
@@ -76,7 +72,7 @@ function SearchPageContent() {
             </div>
           </div>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5 lg:gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-2.5 sm:gap-5 lg:gap-6">
             {matchingProducts.map(p => (
               <ProductCard key={p.id} product={p} />
             ))}

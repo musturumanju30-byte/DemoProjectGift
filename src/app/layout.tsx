@@ -62,13 +62,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${poppins.variable} ${playfair.variable} h-full w-full antialiased`}>
-      <body className="min-h-full w-full flex flex-col bg-white text-gray-900 font-sans selection:bg-pink-100 selection:text-[#F72585]">
+    <html lang="en" className={`${poppins.variable} ${playfair.variable} h-full w-full max-w-full overflow-x-hidden antialiased`}>
+      <body className="min-h-full w-full max-w-full overflow-x-hidden flex flex-col bg-white text-gray-900 font-sans selection:bg-pink-100 selection:text-[#F72585]">
         <AuthProvider>
           <StoreProvider>
             <CartProvider>
               <Header />
-              <main className="flex-1 w-full min-w-0">{children}</main>
+              <main className="flex-1 w-full max-w-full min-w-0 overflow-x-hidden">{children}</main>
               <CartDrawer />
               <AuthDrawer />
               <OneSignalPrompt />

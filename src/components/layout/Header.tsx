@@ -21,6 +21,8 @@ import {
   Home,
   Bell,
   Briefcase,
+  ArrowLeft,
+  CalendarClock,
 } from "lucide-react";
 import { useStore } from "@/context/StoreContext";
 import { useCart } from "@/context/CartContext";
@@ -111,7 +113,7 @@ export const Header: React.FC = () => {
   return (
     <>
       {/* Top Utility Announcement Bar */}
-      <div className="w-full bg-[#1E2233] text-white py-1.5 sm:py-2 px-3 sm:px-6 md:px-8 lg:px-12 xl:px-16 min-h-[36px] sm:min-h-[40px] flex items-center">
+      <div className={`w-full bg-[#1E2233] text-white py-1.5 sm:py-2 px-3 sm:px-6 md:px-8 lg:px-12 xl:px-16 min-h-[36px] sm:min-h-[40px] items-center ${pathname === "/cart" ? "hidden md:flex" : "flex"}`}>
         <div className="w-full max-w-[1700px] mx-auto flex items-center justify-between gap-2 text-[11px] sm:text-xs md:text-[13px] font-medium min-w-0">
           <div className="flex items-center gap-3 md:gap-5 min-w-0">
             <span className="flex items-center gap-1.5 text-amber-300 font-semibold tracking-normal truncate">
@@ -147,7 +149,41 @@ export const Header: React.FC = () => {
 
       {/* Main Brand & Search Header */}
       <header className="w-full sticky top-0 z-40 bg-white border-b border-gray-100 shadow-xs">
-        <div className="w-full max-w-[1700px] mx-auto px-2.5 sm:px-6 md:px-8 lg:px-12 xl:px-16 py-1.5 sm:py-4 min-h-[58px] sm:min-h-[72px] flex items-center justify-between gap-1.5 sm:gap-4 md:gap-6 lg:gap-8 min-w-0">
+        {/* Dedicated Mobile Cart Header (< 768px) when on /cart */}
+        {pathname === "/cart" && (
+          <div className="w-full h-14 md:hidden flex items-center justify-between px-3 bg-white">
+            <button
+              type="button"
+              onClick={() => router.back()}
+              className="h-10 w-10 rounded-full flex items-center justify-center text-gray-700 hover:bg-gray-100 active:scale-95 transition cursor-pointer"
+              aria-label="Go back"
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </button>
+            <div className="flex items-center gap-2">
+              <h1 className="text-[17px] font-bold text-gray-950 tracking-tight font-serif">
+                My Cart
+              </h1>
+              {itemCount > 0 && (
+                <span className="rounded-full bg-pink-100 text-[#F72585] text-xs font-bold px-2 py-0.5">
+                  {itemCount}
+                </span>
+              )}
+            </div>
+            <Link
+              href="/account?tab=wishlist"
+              className="relative h-10 w-10 rounded-full flex items-center justify-center text-gray-700 hover:bg-gray-100 transition"
+              aria-label="Wishlist"
+            >
+              <Heart className="h-5 w-5" />
+              {wishlist.length > 0 && (
+                <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-[#F72585]" />
+              )}
+            </Link>
+          </div>
+        )}
+
+        <div className={`w-full max-w-[1700px] mx-auto px-2.5 sm:px-6 md:px-8 lg:px-12 xl:px-16 py-1.5 sm:py-4 min-h-[58px] sm:min-h-[72px] items-center justify-between gap-1.5 sm:gap-4 md:gap-6 lg:gap-8 min-w-0 ${pathname === "/cart" ? "hidden md:flex" : "flex"}`}>
           {/* Mobile menu trigger */}
           <button
             onClick={() => setIsMobileMenuOpen(prev => !prev)}
@@ -810,56 +846,66 @@ export const Header: React.FC = () => {
       {/* Mobile Bottom Navigation Bar (< 768px): 100% full viewport width, 5 equal columns */}
       <nav
         aria-label="Mobile Bottom Navigation"
-        className="fixed bottom-0 left-0 right-0 z-40 w-full bg-white/95 backdrop-blur-md border-t border-gray-200/80 shadow-lg md:hidden"
+        className="fixed bottom-0 left-0 right-0 z-40 max-w-full min-w-0 box-border overflow-hidden bg-white/95 backdrop-blur-md border-t border-gray-200/80 shadow-lg md:hidden"
         style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
       >
-        <div className="w-full grid grid-cols-5 h-14">
+        <div className="w-full grid grid-cols-5 h-14 min-w-0">
           <Link
             href="/"
-            className="flex flex-col items-center justify-center text-gray-600 hover:text-[#F72585] transition-colors w-full"
+            className={`flex flex-col items-center justify-center min-w-0 w-full overflow-hidden transition-colors ${
+              pathname === "/" ? "text-[#F72585] font-bold" : "text-gray-600 hover:text-[#F72585]"
+            }`}
           >
-            <Home className="h-5 w-5" />
-            <span className="text-[10px] font-medium mt-0.5">Home</span>
+            <Home className="h-5 w-5 shrink-0" />
+            <span className="text-[9.5px] sm:text-[10px] font-medium mt-0.5 truncate max-w-full">Home</span>
           </Link>
 
           <Link
             href="/shop"
-            className="flex flex-col items-center justify-center text-gray-600 hover:text-[#F72585] transition-colors w-full"
+            className={`flex flex-col items-center justify-center min-w-0 w-full overflow-hidden transition-colors ${
+              pathname === "/shop" ? "text-[#F72585] font-bold" : "text-gray-600 hover:text-[#F72585]"
+            }`}
           >
-            <Sparkles className="h-5 w-5" />
-            <span className="text-[10px] font-medium mt-0.5">Explore</span>
+            <Sparkles className="h-5 w-5 shrink-0" />
+            <span className="text-[9.5px] sm:text-[10px] font-medium mt-0.5 truncate max-w-full">Explore</span>
           </Link>
 
           <Link
-            href="/account?tab=wishlist"
-            className="relative flex flex-col items-center justify-center text-gray-600 hover:text-[#F72585] transition-colors w-full"
+            href="/reminders"
+            className={`relative flex flex-col items-center justify-center min-w-0 w-full overflow-hidden transition-colors ${
+              pathname === "/reminders" ? "text-[#F72585] font-bold" : "text-gray-600 hover:text-[#F72585]"
+            }`}
+            aria-label="My Reminders"
           >
-            <div className="relative">
-              <Heart className="h-5 w-5" />
-              {wishlist.length > 0 && (
+            <div className="relative shrink-0 flex items-center justify-center">
+              <CalendarClock size={19} strokeWidth={1.8} className="shrink-0" />
+              {remindersCount > 0 && (
                 <span className="absolute -top-1 -right-2 h-3.5 w-3.5 rounded-full bg-[#F72585] text-[9px] font-bold text-white flex items-center justify-center">
-                  {wishlist.length}
+                  {remindersCount}
                 </span>
               )}
             </div>
-            <span className="text-[10px] font-medium mt-0.5">Wishlist</span>
+            <span className="text-[9.5px] sm:text-[10px] font-medium mt-0.5 truncate max-w-full">Reminders</span>
           </Link>
 
           <Link
             href="/track-order"
-            className="flex flex-col items-center justify-center text-gray-600 hover:text-[#F72585] transition-colors w-full"
+            className={`flex flex-col items-center justify-center min-w-0 w-full overflow-hidden transition-colors ${
+              pathname === "/track-order" ? "text-[#F72585] font-bold" : "text-gray-600 hover:text-[#F72585]"
+            }`}
           >
-            <Truck className="h-5 w-5" />
-            <span className="text-[10px] font-medium mt-0.5">Track</span>
+            <Truck className="h-5 w-5 shrink-0" />
+            <span className="text-[9.5px] sm:text-[10px] font-medium mt-0.5 truncate max-w-full">Track</span>
           </Link>
 
-          <button
-            type="button"
-            onClick={openCart}
-            className="relative flex flex-col items-center justify-center text-[#F72585] transition-colors w-full cursor-pointer"
-            aria-label="Open Cart"
+          <Link
+            href="/cart"
+            className={`relative flex flex-col items-center justify-center min-w-0 w-full overflow-hidden transition-colors cursor-pointer ${
+              pathname === "/cart" ? "text-[#F72585]" : "text-gray-600 hover:text-[#F72585]"
+            }`}
+            aria-label="Shopping Cart"
           >
-            <div className="relative">
+            <div className="relative shrink-0">
               <ShoppingBag className="h-5 w-5" />
               {itemCount > 0 && (
                 <span className="absolute -top-1 -right-2 h-3.5 w-3.5 rounded-full bg-[#C9A227] text-[9px] font-extrabold text-black flex items-center justify-center">
@@ -867,8 +913,8 @@ export const Header: React.FC = () => {
                 </span>
               )}
             </div>
-            <span className="text-[10px] font-bold mt-0.5">Cart</span>
-          </button>
+            <span className={`text-[9.5px] sm:text-[10px] mt-0.5 truncate max-w-full ${pathname === "/cart" ? "font-bold text-[#F72585]" : "font-medium"}`}>Cart</span>
+          </Link>
         </div>
       </nav>
     </>

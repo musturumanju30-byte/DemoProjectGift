@@ -99,10 +99,10 @@ function ShopContent() {
   ]);
 
   return (
-    <div className="w-full bg-gray-50/50 min-h-screen py-8 sm:py-12 font-sans">
-      <div className="w-full max-w-[1700px] mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16">
+    <div className="w-full bg-gray-50/50 min-h-screen py-4 sm:py-12 font-sans">
+      <div className="w-full max-w-[1700px] mx-auto px-2 sm:px-6 md:px-8 lg:px-12 xl:px-16">
         {/* Breadcrumbs */}
-        <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-500 mb-6">
+        <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-500 mb-3 sm:mb-6">
           <Link href="/" className="hover:text-[#F72585] transition">
             Home
           </Link>
@@ -111,32 +111,33 @@ function ShopContent() {
         </div>
 
         {/* Page Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4 mb-4 sm:mb-8">
           <div>
-            <h1 className="text-3xl sm:text-4xl lg:text-[42px] font-serif font-bold text-gray-950 tracking-tight">
+            <h1 className="text-2xl sm:text-4xl lg:text-[42px] font-serif font-bold text-gray-950 tracking-tight leading-tight">
               Personalised Gifts &amp; Flowers in Repalle
             </h1>
-            <p className="text-sm sm:text-base text-gray-500 mt-2 font-sans">
+            <p className="text-xs sm:text-base text-gray-500 mt-1 sm:mt-2 font-sans">
               Showing {filteredProducts.length} handcrafted products with same-day delivery options
             </p>
           </div>
 
-          {/* Sort and Mobile Filter Triggers */}
-          <div className="flex items-center gap-3">
+          {/* Sort and Mobile Filter Triggers (side-by-side on mobile) */}
+          <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
             <button
+              type="button"
               onClick={() => setIsMobileFilterOpen(true)}
-              className="lg:hidden flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-5 py-2.5 text-sm font-bold text-gray-800 shadow-xs h-11"
+              className="lg:hidden flex-1 sm:flex-initial flex items-center justify-center gap-1.5 rounded-xl border border-gray-200 bg-white px-3 sm:px-5 py-2 text-xs sm:text-sm font-bold text-gray-800 shadow-xs h-10 sm:h-11 cursor-pointer hover:bg-gray-50 active:scale-98 transition shrink-0"
             >
-              <SlidersHorizontal className="h-4 w-4 text-[#F72585]" />
-              Filters {hasActiveFilters && "(Active)"}
+              <SlidersHorizontal className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-[#F72585]" />
+              <span>Filters {hasActiveFilters && "(Active)"}</span>
             </button>
 
-            <div className="flex items-center gap-2.5">
+            <div className="flex-1 sm:flex-initial flex items-center gap-2">
               <span className="text-sm font-semibold text-gray-500 hidden sm:inline">Sort:</span>
               <select
                 value={sortBy}
                 onChange={e => setSortBy(e.target.value)}
-                className="h-11 rounded-xl border border-gray-200 bg-white px-4 py-2 text-xs sm:text-sm font-semibold text-gray-800 shadow-xs focus:border-[#F72585] focus:outline-none cursor-pointer"
+                className="w-full sm:w-auto h-10 sm:h-11 rounded-xl border border-gray-200 bg-white px-2.5 sm:px-4 py-2 text-xs sm:text-sm font-semibold text-gray-800 shadow-xs focus:border-[#F72585] focus:outline-none cursor-pointer"
               >
                 <option value="featured">Featured / Bestsellers</option>
                 <option value="price-low">Price: Low to High</option>
@@ -368,7 +369,7 @@ function ShopContent() {
                 </button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6 sm:gap-7 lg:gap-8">
+              <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-2.5 sm:gap-6 md:gap-7 lg:gap-8">
                 {filteredProducts.map(product => (
                   <ProductCard key={product.id} product={product} />
                 ))}

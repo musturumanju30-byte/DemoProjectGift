@@ -68,9 +68,9 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
       </div>
 
       {/* Main Catalog Content Area: Full width 1700px with generous spacing */}
-      <div className="w-full max-w-[1700px] mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 py-10 sm:py-14 lg:py-16">
-        {/* Product Grid: 4 columns desktop filling full width with large, readable cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 min-[1850px]:grid-cols-5 gap-6 sm:gap-7 lg:gap-8">
+      <div className="w-full max-w-[1700px] mx-auto px-2 sm:px-6 md:px-8 lg:px-12 xl:px-16 py-4 sm:py-14 lg:py-16">
+        {/* Product Grid: 2 columns mobile, 4 columns desktop filling full width with large, readable cards */}
+        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 min-[1850px]:grid-cols-5 gap-2.5 sm:gap-6 md:gap-7 lg:gap-8">
           {products.map(product => (
             <ProductCard key={product.id} product={product} />
           ))}
