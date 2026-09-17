@@ -64,7 +64,7 @@ export default function AdminLoginPage() {
         return;
       }
 
-      router.push("/admin");
+      window.location.href = "/admin";
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "An unexpected error occurred.";
       setLoginError(msg);
@@ -96,7 +96,7 @@ export default function AdminLoginPage() {
   const handleDemoAdmin = () => {
     if (!isDemoMode) return;
     loginAsAdmin();
-    router.push("/admin");
+    window.location.href = "/admin";
   };
 
   return (
